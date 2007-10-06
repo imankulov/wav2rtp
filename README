@@ -1,0 +1,10 @@
+WAV2RTP
+
+Wav2rtp is a simple testing tool to generate RTP data packets and send it via netwok
+interface  or save into pcap file. 
+
+This tool primarily intended for use with SIPp application to test speech
+quality with different codecs.
+
+See latest information about it in the main project site:
+http://wav2rtp.sourceforge.net
