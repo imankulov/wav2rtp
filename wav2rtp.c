@@ -133,6 +133,11 @@ int main(int argc, char ** argv)
             printf("Cannot open or render sound file");
             return CANNOT_RENDER_WAVFILE;
         }
+        if (file_info.samplerate != 8000){
+            printf("Sorry, this tool currently works only with .wav files in 8kHz. Rerecord your signal or resample it (with sox, for example)\n");
+            sf_close(file);
+            return CANNOT_RENDER_WAVFILE; 
+        }
 
         /* Update payload type to output */
         (*output.set_payload_type)(&output, codec.payload_type);
