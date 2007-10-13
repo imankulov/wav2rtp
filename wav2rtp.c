@@ -81,14 +81,39 @@ void print_sipp_scenario(int duration)
         "t=0 0\n"
         "m=audio [auto_media_port] RTP/AVP ");
 
+    /* Print payload types without duplicates */
     while(current_codec){
-        printf("%d ", current_codec->codec->payload_type);
+        /* forward check for duplicates */
+        t_codec_list * tmp = current_codec->next;
+        int duplicate_found = 0;
+        while(tmp){
+            if (tmp->codec->payload_type == current_codec->codec->payload_type){
+                duplicate_found = 1;
+                break;
+            }
+            tmp = tmp->next; 
+        }
+        if(!duplicate_found){
+            printf("%d ", current_codec->codec->payload_type);
+        } 
         current_codec = current_codec->next;
     }
     printf("\n");
     current_codec = wr_options.codec_list;
     while(current_codec){
-        printf("a=rtpmap:%d %s/%d\n", current_codec->codec->payload_type, current_codec->codec->name, current_codec->codec->sample_rate);
+        /* once again forward check for duplicates */
+        t_codec_list * tmp = current_codec->next;
+        int duplicate_found = 0;
+        while(tmp){
+            if (tmp->codec->payload_type == current_codec->codec->payload_type){
+                duplicate_found = 1;
+                break;
+            }
+            tmp = tmp->next; 
+        }
+        if (!duplicate_found){
+            printf("a=rtpmap:%d %s/%d\n", current_codec->codec->payload_type, current_codec->codec->name, current_codec->codec->sample_rate);
+        }
         current_codec = current_codec->next;
     }
     printf("\n");
