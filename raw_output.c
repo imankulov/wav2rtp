@@ -61,7 +61,8 @@ void wr_raw_set_payload_type(t_output  * pout, int payload_type)
     return; /* Do nothing */
 }
 
-int wr_raw_write(void * state, const char * buffer, int buffer_length, int buffer_length_in_ms)
+/* XXX: Two last parameters never used */
+int wr_raw_write(void * state, const char * buffer, int buffer_length, int buffer_length_in_ms, int buffer_delay_in_ms, int should_be_forget)
 {
     wr_raw_state * s = (wr_raw_state * )state;    
     return fwrite(buffer, buffer_length, 1, s->fd);

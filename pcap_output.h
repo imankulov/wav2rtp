@@ -52,7 +52,7 @@ typedef struct {
 } wr_pcap_state;
 
 t_output * wr_pcap_init_output(t_output *);
-int wr_pcap_write(void*, const char *, int, int);
+int wr_pcap_write(void*, const char *, int, int, int, int);
 void wr_pcap_set_paload_type(t_output * pout, int payload_type);
 void wr_pcap_destroy_output(t_output*);
 

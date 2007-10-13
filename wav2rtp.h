@@ -75,7 +75,7 @@ typedef struct __output {
 
 
     /* Methods */
-    int (* write)(void *, const char *, int, int); /**< write out data portion into its own datastream (file, network socket ...)  */
+    int (* write)(void * state, const char * buffer, int buffer_length, int buffer_length_in_ms, int buffer_delay_in_ms, int should_be_forget); /**< write out data portion into its own datastream (file, network socket ...)  */
     void (*set_payload_type)(struct __output *, int ); /**< if codec payload type changes during data writing, this method have to be called */
     void (*destroy)(struct __output * );    /**< Pointer to function which destroy this  object */
 } t_output;

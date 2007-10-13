@@ -43,7 +43,7 @@ t_codec * g711u_init_codec(t_codec * pcodec)
 
     pcodec->name = "PCMU";
     pcodec->sample_rate = 8000;
-    pcodec->description = "ITU-T G.721 codec with u-law compression";
+    pcodec->description = "ITU-T G.711 codec with u-law compression";
     pcodec->state = (void*) state;
     pcodec->payload_type = 0;       // See RFC 1890
     pcodec->get_input_buffer_size = &wr_g711u_get_input_buffer_size;

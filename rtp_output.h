@@ -46,6 +46,6 @@ typedef struct {
 
 t_output * wr_rtp_init_output(t_output *);
 void wr_rtp_set_paload_type(t_output * pout, int payload_type);
-int wr_rtp_write(void*, const char *, int, int);
+int wr_rtp_write(void*, const char *, int, int, int, int);
 void wr_rtp_destroy_output(t_output*);
 #endif 

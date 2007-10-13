@@ -238,7 +238,7 @@ int main(int argc, char ** argv)
             output_buffer_size = (*codec.encode)(codec.state, input_buffer, output_buffer);
      
             /* write out  encoded data */
-            (*output.write)(output.state, output_buffer, output_buffer_size, 1000 * input_buffer_size / file_info.samplerate);
+            (*output.write)(output.state, output_buffer, output_buffer_size, 1000 * input_buffer_size / file_info.samplerate, 0, 0);
         }
 
         /* Next iteration */

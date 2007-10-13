@@ -68,7 +68,8 @@ void wr_rtp_set_paload_type(t_output * pout, int payload_type)
 }
 
 
-int wr_rtp_write(void * state, const char * buffer, int buffer_length, int buffer_length_in_ms)
+/* XXX: Two last parameters never used */
+int wr_rtp_write(void * state, const char * buffer, int buffer_length, int buffer_length_in_ms, int buffer_delay_in_ms, int should_be_forget)
 {
     wr_rtp_state * sstate = (wr_rtp_state * )(state);
 

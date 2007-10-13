@@ -44,6 +44,6 @@ typedef struct {
 
 t_output * wr_raw_init_output(t_output *);
 void wr_raw_set_payload_type(t_output  * pout, int payload_type);
-int wr_raw_write(void*, const char *, int, int);
+int wr_raw_write(void*, const char *, int, int, int, int);
 void wr_raw_destroy_output(t_output*);
 #endif 

@@ -103,7 +103,7 @@ void wr_pcap_set_paload_type(t_output * pout, int payload_type)
 }
 
 
-int wr_pcap_write(void * state, const char * buffer, int buffer_length, int buffer_length_in_ms)
+int wr_pcap_write(void * state, const char * buffer, int buffer_length, int buffer_length_in_ms, int buffer_delay_in_ms, int should_be_forget)
 {
     wr_pcap_state * s = (wr_pcap_state * )state;
 
@@ -163,16 +163,20 @@ int wr_pcap_write(void * state, const char * buffer, int buffer_length, int buff
     
     bzero(&ph, sizeof(ph));
     memcpy(&(ph.ts), &(s->ts), sizeof(struct timeval));
-    timeval_increment(&(s->ts), buffer_length_in_ms*1000);
+    timeval_increment(&(s->ts), (buffer_length_in_ms + buffer_delay_in_ms)*1000);
     ph.caplen = sizeof(e_header) + sizeof(ip_header) + sizeof(udp_header) + rtp_header_length + buffer_length;
     ph.len = ph.caplen;
-
-    fwrite(&ph, sizeof(ph), 1, s->fd);
-    fwrite(&e_header, sizeof(e_header), 1, s->fd);
-    fwrite(&ip_header, sizeof(ip_header), 1, s->fd);
-    fwrite(&udp_header, sizeof(udp_header), 1, s->fd);
-    fwrite(&rtp_header, rtp_header_length, 1, s->fd);
-    return fwrite(buffer, buffer_length, 1, s->fd);
+    
+    if (!should_be_forget){
+        fwrite(&ph, sizeof(ph), 1, s->fd);
+        fwrite(&e_header, sizeof(e_header), 1, s->fd);
+        fwrite(&ip_header, sizeof(ip_header), 1, s->fd);
+        fwrite(&udp_header, sizeof(udp_header), 1, s->fd);
+        fwrite(&rtp_header, rtp_header_length, 1, s->fd);
+        return fwrite(buffer, buffer_length, 1, s->fd);
+    }else{
+        return 0;
+    }
 }
 
 
