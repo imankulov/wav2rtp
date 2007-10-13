@@ -44,11 +44,12 @@ typedef struct __options {
     char * inet_addr;
     int remote_port;    
 
-    // char * codec_type;
     t_codec_list * codec_list;
     char * output_type;    
 
     char * output_filename;
+
+    int print_sipp_scenario; /**< Set this value to true if you want to print additional info to generate SIPP scenario */
 
 } t_options;
 

@@ -45,14 +45,15 @@ void print_usage()
             "This tool used to convert data from .wav to rtp packets which can be sent over network interface or stored into pcap file\n"
             "\n"
             "USAGE: wav2rtp [-H|--host] hostname:port [-f|--from-file] filename.wav [-c|--codec] codec [-o|--output] output_type [ other options ... ]\n"
-            "  -H, --host        \tHostname and port to send rtp packets\n"
-            "  -f, --from-file   \tFilename from which sound (speech) data will be readed\n"
-            "  -c, --codec-list  \tComma separated list of codec types (without spaces), which will be used to encode .wav file. You can choose one of: speex, dummy, gsm, g711u\n"
-            "  -o, --output      \tOutput type, you can send data to RTP stream (\"rtp\"), write it to raw file (\"raw\") or write it in the file in pcap (\"pcap\") format\n"
+            "  -H, --host               \tHostname and port to send rtp packets\n"
+            "  -f, --from-file          \tFilename from which sound (speech) data will be readed\n"
+            "  -c, --codec-list         \tComma separated list of codec types (without spaces), which will be used to encode .wav file. You can choose one of: speex, dummy, gsm, g711u\n"
+            "  -o, --output             \tOutput type, you can send data to RTP stream (\"rtp\"), write it to raw file (\"raw\") or write it in the file in pcap (\"pcap\") format\n"
             "\n"
             "Other options.\n"
             "\n"
-            "  -t, --to-file     \tOutput file. Used when output type is \"raw\" or \"pcap\"\n"
+            "  -t, --to-file            \tOutput file. Used when output type is \"raw\" or \"pcap\"\n"
+            "  -s, --print-sipp-scenario\tPrint two essential parts of SIPp scenario: SDP data packet and XML-string which force to play pcap audio.\n"
             "\n"
             "EXAMPLE: \n"
             "  wav2rtp -H 192.168.0.1:8000 -f test.wav -c g711u,gsm -o pcap -t test.pcap\n"
@@ -78,6 +79,7 @@ int get_options(const int argc, char * const argv[])
         {"codec-list", 1, NULL, 'c', }, 
         {"output", 1, NULL, 'o', }, 
         {"to-file", 1, NULL, 't', }, 
+        {"print-sipp-scenario", 0, NULL, 's', }, 
         {0, 0, 0, 0},
     };
     bzero(&wr_options, sizeof(t_options));
@@ -111,9 +113,6 @@ int get_options(const int argc, char * const argv[])
                 fset ++;
                 break;
             case 'c':
-                /*
-                wr_options.codec_type = optarg;
-                */
                 if (get_codec_list(optarg, &wr_options.codec_list) == 0)
                     cset ++;
                 break;
@@ -123,6 +122,9 @@ int get_options(const int argc, char * const argv[])
                 break;
             case 't':
                 wr_options.output_filename = optarg;
+                break;
+            case 's':
+                wr_options.print_sipp_scenario = 1;
                 break;
             default:
                 hlp++;
@@ -233,4 +235,6 @@ void free_codec_list(t_codec_list * list)
     /* TODO: Not yet implemented */
     return; 
 }
+
+
 

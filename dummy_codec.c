@@ -46,6 +46,10 @@ t_codec * dummy_init_codec(t_codec * pcodec)
     state->input_buffer_size = 160;
     state->output_buffer_size = 16; // 10 times compression ;-)
 
+    pcodec->name = "DUMMY";
+    pcodec->sample_rate = 8000;
+    pcodec->description = "It's not a codec in fact. It's just for testing and demonstrating purposes.";
+
     pcodec->state = (void*) state;
     pcodec->payload_type = 0;
     pcodec->get_input_buffer_size = &dummy_get_input_buffer_size;

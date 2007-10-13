@@ -51,12 +51,12 @@ t_output * wr_raw_init_output(t_output *  pout)
     }
     pout->state = (void*) state;
     pout->write = &wr_raw_write;
-    pout->set_payload_type = wr_raw_set_payload_type;
+    pout->set_payload_type = &wr_raw_set_payload_type;
     pout->destroy = &wr_raw_destroy_output;
     return pout;
 }
 
-int wr_raw_set_payload_type(t_output  * pout, int payload_type)
+void wr_raw_set_payload_type(t_output  * pout, int payload_type)
 {
     return; /* Do nothing */
 }

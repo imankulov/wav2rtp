@@ -51,7 +51,7 @@
 #include "raw_output.h"
 #include "pcap_output.h"
 
-
+/** XXX: unused */
 int print_sdp()
 {
     printf("m=audio 8000 RTP/AVP 97\n");
@@ -59,15 +59,66 @@ int print_sdp()
     printf("a=fmtp:97 mode=4;mode=any\n");
 }
 
+/**
+ * Print to stdout essentials parts of thie SIPp XML scenario
+ * Uses speech duration (in ms) and global variable  wr_options
+ */
+
+void print_sipp_scenario(int duration)
+{
+
+    t_codec_list * current_codec = wr_options.codec_list;
+
+    if (!wr_options.print_sipp_scenario)
+        return; 
+
+    printf("***sdp_data_packet***\n"); 
+    printf(
+        "v=0\n"
+        "o=user1 53655765 2353687637 IN IP[local_ip_type] [local_ip]\n"
+        "s=-\n"
+        "c=IN IP[local_ip_type] [local_ip]\n"
+        "t=0 0\n"
+        "m=audio [auto_media_port] RTP/AVP ");
+
+    while(current_codec){
+        printf("%d ", current_codec->codec->payload_type);
+        current_codec = current_codec->next;
+    }
+    printf("\n");
+    current_codec = wr_options.codec_list;
+    while(current_codec){
+        printf("a=rtpmap:%d %s/%d\n", current_codec->codec->payload_type, current_codec->codec->name, current_codec->codec->sample_rate);
+        current_codec = current_codec->next;
+    }
+    printf("\n");
+
+    if (wr_options.output_filename){
+        printf("***play_pcap_xml***\n");
+        printf(
+            "<nop>\n"
+            "   <action>\n"
+            "       <exec play_pcap_audio=\"%s\"/>\n"
+            "   </action>\n"
+            "</nop>\n"
+            "<pause milliseconds=\"%d\"/>\n", wr_options.output_filename, duration);
+    }
+}
+
+
 
 int main(int argc, char ** argv)
 {
+
+    int duration = 0;   /* total output duration */
+
     t_codec_list * current_codec_list; 
     t_output output;
 
+    SNDFILE * file;
+    SF_INFO file_info;
 
-	RtpSession *session = NULL;
-	uint32_t user_ts = 0; // TODO: This should be random
+	uint32_t user_ts = 0; /* TODO: This should be random */
 
     /* Get options from command line */
     if (get_options(argc, argv)){
@@ -120,24 +171,23 @@ int main(int argc, char ** argv)
     }
 
     /* Read data and encode it with selected codec */
+    
+    /* Open WAV file */
+    bzero(&file_info, sizeof(file_info));
+    file = sf_open(wr_options.filename, SFM_READ, &file_info);
+    if (!file){
+        printf("Cannot open or render sound file");
+        return CANNOT_RENDER_WAVFILE;
+    }
+    if (file_info.samplerate != 8000){
+        printf("Sorry, this tool currently works only with .wav files in 8kHz. Rerecord your signal or resample it (with sox, for example)\n");
+        sf_close(file);
+        return CANNOT_RENDER_WAVFILE; 
+    }
     current_codec_list = wr_options.codec_list;
-    while(current_codec_list){
-        SNDFILE * file;
-        SF_INFO file_info;
-        t_codec codec = *(current_codec_list->codec);
 
-        /* Open WAV file */
-        bzero(&file_info, sizeof(file_info));
-        file = sf_open(wr_options.filename, SFM_READ, &file_info);
-        if (!file){
-            printf("Cannot open or render sound file");
-            return CANNOT_RENDER_WAVFILE;
-        }
-        if (file_info.samplerate != 8000){
-            printf("Sorry, this tool currently works only with .wav files in 8kHz. Rerecord your signal or resample it (with sox, for example)\n");
-            sf_close(file);
-            return CANNOT_RENDER_WAVFILE; 
-        }
+    while(current_codec_list){
+        t_codec codec = *(current_codec_list->codec);
 
         /* Update payload type to output */
         (*output.set_payload_type)(&output, codec.payload_type);
@@ -151,8 +201,10 @@ int main(int argc, char ** argv)
             bzero(input_buffer, input_buffer_size * sizeof(short));
             input_buffer_size = sf_read_short(file, input_buffer, input_buffer_size);
 
+            duration += input_buffer_size * 1000 / file_info.samplerate;
+
             if (!input_buffer_size){/* EOF */
-                sf_close(file);
+                sf_seek(file, 0, SEEK_SET);
                 break;
             }
 
@@ -166,8 +218,10 @@ int main(int argc, char ** argv)
 
         /* Next iteration */
         current_codec_list = current_codec_list->next;
-    }
+    }    
+    sf_close(file);
     (*output.destroy)(&output);
     free_codec_list(wr_options.codec_list);
+    print_sipp_scenario(duration);
     return 0; 
 }

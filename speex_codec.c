@@ -55,6 +55,8 @@ t_codec * wr_speex_init_codec(t_codec * pcodec)
 
     pcodec->name = "speex";
     pcodec->description = "Speex narrowband mode codec";
+    pcodec->sample_rate = 8000;
+
     pcodec->state = (void*)state;
     pcodec->payload_type = 96;
     pcodec->get_input_buffer_size = &wr_speex_get_input_buffer_size;

@@ -47,8 +47,9 @@ t_codec * gsm_init_codec(t_codec * pcodec)
         return NULL;
     }
 
-    pcodec->name = "gsm";
-    pcodec->description = "GSM 06.10 FR codec";
+    pcodec->name = "GSM";
+    pcodec->sample_rate = 8000;
+    pcodec->description = "GSM 06.10 Full-Rate codec";
     pcodec->state = (void*) state;
     pcodec->payload_type = 3;       // See RFC 1890
     pcodec->get_input_buffer_size = &wr_gsm_get_input_buffer_size;
