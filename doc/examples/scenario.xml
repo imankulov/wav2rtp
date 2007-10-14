@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE scenario SYSTEM "sipp.dtd">
+
+<scenario name="wav2rtp testing scenario">
+
+  <!-- This scenario intended to use with wav2rtp-testcall.sh script     -->
+  <!-- The main complexity for user in this test is to write correctly   -->
+  <!-- SDP packet                                                        -->
+
+  <!-- Variables "sdp_data_packet" and "play_pcap_xml" is used to        -->
+  <!-- substitute correct values in script                               -->
+
+  <send retrans="500">
+    <![CDATA[
+
+INVITE sip:[service]@[remote_ip]:[remote_port] SIP/2.0
+Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[call_number]
+To: testcase <sip:[service]@[remote_ip]:[remote_port]>
+Call-ID: [call_id]
+CSeq: 1 INVITE
+Contact: sip:sipp@[local_ip]:[local_port]
+Max-Forwards: 70
+Subject: RTP different payload formats test
+Content-Type: application/sdp
+Content-Length: [len]
+
+***sdp_data_packet***
+    ]]>
+  </send>
+
+  <recv response="100" optional="true">
+  </recv>
+
+  <recv response="101" optional="true">
+  </recv>
+
+  <recv response="180" optional="true">
+  </recv>
+
+  <!-- By adding rrs="true" (Record Route Sets), the route sets         -->
+  <!-- are saved and used for following messages sent. Useful to test   -->
+  <!-- against stateful SIP proxies/B2BUAs.                             -->
+  <recv response="200" rtd="true" crlf="true">
+  </recv>
+
+  <!-- Packet lost can be simulated in any send/recv message by         -->
+  <!-- by adding the 'lost = "10"'. Value can be [1-100] percent.       -->
+  <send>
+    <![CDATA[
+
+ACK sip:[service]@[remote_ip]:[remote_port] SIP/2.0
+Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[call_number]
+To: sut <sip:[service]@[remote_ip]:[remote_port]>[peer_tag_param]
+Call-ID: [call_id]
+CSeq: 1 ACK
+Contact: sip:sipp@[local_ip]:[local_port]
+Max-Forwards: 70
+Subject: Performance Test
+Content-Length: 0
+
+    ]]>
+  </send>
+
+  <!-- Play a pre-recorded PCAP file (RTP stream)                       -->
+  ***play_pcap_xml***
+
+  <!-- The 'crlf' option inserts a blank line in the statistics report. -->
+  <send retrans="500">
+    <![CDATA[
+
+BYE sip:[service]@[remote_ip]:[remote_port] SIP/2.0
+Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[call_number]
+To: sut <sip:[service]@[remote_ip]:[remote_port]>[peer_tag_param]
+Call-ID: [call_id]
+CSeq: 2 BYE
+Contact: sip:sipp@[local_ip]:[local_port]
+Max-Forwards: 70
+Content-Length: 0
+
+    ]]>
+  </send>
+
+  <recv response="200" crlf="true">
+  </recv>
+
+</scenario>
+

@@ -39,5 +39,5 @@ else
 fi
 AC_DEFINE_UNQUOTED([CONFDIR], "${_confdir}/wav2rtp", [wav2rtp configuration dir])
 
-AC_CONFIG_FILES([Makefile conf/Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile conf/Makefile src/Makefile doc/Makefile])
 AC_OUTPUT
