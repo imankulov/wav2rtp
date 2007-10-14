@@ -43,16 +43,16 @@ t_codec * dummy_init_codec(t_codec * pcodec)
     dummy_state * state = malloc(sizeof(dummy_state));
     if (!state)
         return NULL;
-    state->retval = (char)iniparser_getint(wr_options.codecs_options, "dummy:retval", 0);
-    state->input_buffer_size = iniparser_getint(wr_options.codecs_options, "dummy:input_buffer_size", 640);
-    state->output_buffer_size = iniparser_getint(wr_options.codecs_options, "dummy:output_buffer_size", 64);
+    state->retval = (char)iniparser_getnonnegativeint(wr_options.codecs_options, "dummy:retval", 0);
+    state->input_buffer_size = iniparser_getpositiveint(wr_options.codecs_options, "dummy:input_buffer_size", 640);
+    state->output_buffer_size = iniparser_getpositiveint(wr_options.codecs_options, "dummy:output_buffer_size", 64);
 
     pcodec->name = "DUMMY";
     pcodec->sample_rate = 8000;
     pcodec->description = "It's not a codec in fact. It's just for testing and demonstrating purposes.";
 
     pcodec->state = (void*) state;
-    pcodec->payload_type = iniparser_getint(wr_options.codecs_options, "dummy:payload_type", 0);
+    pcodec->payload_type = iniparser_getnonnegativeint(wr_options.codecs_options, "dummy:payload_type", 0);
     pcodec->get_input_buffer_size = &dummy_get_input_buffer_size;
     pcodec->get_output_buffer_size = &dummy_get_output_buffer_size;
     pcodec->encode = &dummy_encode;

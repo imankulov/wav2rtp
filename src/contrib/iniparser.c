@@ -759,6 +759,17 @@ int iniparser_getint(dictionary * d, char * key, int notfound)
     return atoi(str);
 }
 
+int iniparser_getpositiveint(dictionary * d, char * key, int notfound)
+{
+    int value = iniparser_getint(d, key, notfound);
+    if (value <= 0) return notfound;
+}
+
+int iniparser_getnonnegativeint(dictionary * d, char * key, int notfound)
+{
+    int value = iniparser_getint(d, key, notfound);
+    if (value < 0) return notfound;
+}
 
 /*-------------------------------------------------------------------------*/
 /**

@@ -58,7 +58,7 @@ t_codec * wr_speex_init_codec(t_codec * pcodec)
     pcodec->sample_rate = 8000;
 
     pcodec->state = (void*)state;
-    pcodec->payload_type = iniparser_getint(wr_options.codecs_options, "speex:payload_type", 96);
+    pcodec->payload_type = iniparser_getnonnegativeint(wr_options.codecs_options, "speex:payload_type", 96);
     pcodec->get_input_buffer_size = &wr_speex_get_input_buffer_size;
     pcodec->get_output_buffer_size = &wr_speex_get_output_buffer_size;
     pcodec->encode = &wr_speex_encode;

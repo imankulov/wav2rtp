@@ -1,6 +1,10 @@
 /*
  Based upon libiniparser, by Nicolas Devillard
  Hacked into 1 file (m-iniparser) by Freek/2005
+ 
+ Functions iniparser_getpositiveint, iniparser_getnonnegativeint 
+ added by Roman Imankulov 
+
  Original terms following:
 
  -- -
@@ -68,6 +72,8 @@ char * iniparser_getkey(dictionary *d, char *section, char *key);
 char * iniparser_getstr(dictionary * d, char * key);
 char * iniparser_getstring(dictionary * d, char * key, char * def);
 int iniparser_getint(dictionary * d, char * key, int notfound);
+int iniparser_getpositiveint(dictionary * d, char * key, int notfound);
+int iniparser_getnonnegativeint(dictionary * d, char * key, int notfound);
 double iniparser_getdouble(dictionary * d, char * key, double notfound);
 int iniparser_getboolean(dictionary * d, char * key, int notfound);
 int iniparser_find_entry(dictionary  *   ini, char        *   entry);
