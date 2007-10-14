@@ -40,6 +40,7 @@
 #define CANNOT_INITIALIZE_CODEC (4)
 #define CANNOT_INITIALIZE_OUTPUT (8)
 #define OUTPUT_NOT_RECOGNIZED (16)
+#define CANNOT_PARSE_CONFIG (32)
 
 /** String which contains error descritions when something goes wrong  */
 char wr_error[2048];

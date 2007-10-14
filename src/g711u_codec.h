@@ -38,6 +38,7 @@
 #include "wav2rtp.h"
 
 typedef struct {
+    int buffer_size;
 } wr_g711u_state;
 
 

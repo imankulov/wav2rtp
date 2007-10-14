@@ -55,6 +55,8 @@ void print_usage()
             "  -t, --to-file            \tOutput file. Used when output type is \"raw\" or \"pcap\"\n"
             "  -s, --print-sipp-scenario\tPrint two essential parts of SIPp scenario: SDP data packet and XML-string which force to play pcap audio.\n"
             "\n"
+            "Codecs options (such as payload type and other) may be defined in the config file: " CONFDIR "/codec.conf\n"
+            "\n"
             "EXAMPLE: \n"
             "  wav2rtp -H 192.168.0.1:8000 -f test.wav -c g711u,gsm -o pcap -t test.pcap\n"
             "\n"
@@ -70,7 +72,6 @@ int get_options(const int argc, char * const argv[])
     extern char *optarg;
     extern int optind, optopt;
     int hlp = 0, hset = 0, cset = 0, fset=0, oset=0;
-
     char * chr; 
     static struct option long_options[] = {
         {"help", 0, NULL, 'h', }, 
@@ -82,7 +83,13 @@ int get_options(const int argc, char * const argv[])
         {"print-sipp-scenario", 0, NULL, 's', }, 
         {0, 0, 0, 0},
     };
-    bzero(&wr_options, sizeof(t_options));
+
+    bzero(&wr_options, sizeof(t_options));    
+    wr_options.codecs_options = iniparser_new(CONFDIR "/codecs.conf");
+    if (!wr_options.codecs_options){
+        wr_set_error("Cannot load or parse file with codec options: " CONFDIR "/codecs.conf");
+        return CANNOT_PARSE_CONFIG; 
+    }
     while(1){
         int option_index = 0;
         c = getopt_long(argc, argv, "hH:f:c:o:t:", long_options, &option_index);

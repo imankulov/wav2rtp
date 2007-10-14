@@ -33,7 +33,7 @@
  *
  */
 #include "speex_codec.h"
-
+#include "options.h"
 #include <stdlib.h>
 
 
@@ -54,11 +54,11 @@ t_codec * wr_speex_init_codec(t_codec * pcodec)
     state->enc_state = speex_encoder_init(&speex_nb_mode);
 
     pcodec->name = "speex";
-    pcodec->description = "Speex narrowband mode codec";
+    pcodec->description = "Speex NB codec";
     pcodec->sample_rate = 8000;
 
     pcodec->state = (void*)state;
-    pcodec->payload_type = 96;
+    pcodec->payload_type = iniparser_getint(wr_options.codecs_options, "speex:payload_type", 96);
     pcodec->get_input_buffer_size = &wr_speex_get_input_buffer_size;
     pcodec->get_output_buffer_size = &wr_speex_get_output_buffer_size;
     pcodec->encode = &wr_speex_encode;

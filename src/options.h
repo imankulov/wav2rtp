@@ -35,6 +35,11 @@
 #ifndef __OPTIONS_H
 #define __OPTIONS_H 1
 
+#ifdef HAVE_CONFIG_H
+    #include <config.h>
+#endif
+
+#include "contrib/iniparser.h"
 #include "wav2rtp.h"
 
 /** Options passed from command-line arguments */
@@ -50,6 +55,7 @@ typedef struct __options {
     char * output_filename;
 
     int print_sipp_scenario; /**< Set this value to true if you want to print additional info to generate SIPP scenario */
+    dictionary * codecs_options; /**< Dictionary of codec options given from /etc/wav2rtp/codecs.conf */
 
 } t_options;
 

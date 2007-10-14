@@ -31,5 +31,13 @@ AC_TYPE_UINT8_T
 # AC_FUNC_MALLOC
 AC_CHECK_FUNCS([bzero gettimeofday strchr])
 
+# Additional definitions
+if test "x${prefix}" = "xNONE"; then
+    _confdir=$(eval echo $(echo "${sysconfdir}" | sed 's/prefix/ac_default_prefix/'))
+else
+    _confdir=$(eval echo "${sysconfdir}")
+fi
+AC_DEFINE_UNQUOTED([CONFDIR], "${_confdir}/wav2rtp", [wav2rtp configuration dir])
+
 AC_CONFIG_FILES([Makefile conf/Makefile src/Makefile])
 AC_OUTPUT

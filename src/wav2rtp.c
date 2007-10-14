@@ -136,9 +136,10 @@ int main(int argc, char ** argv)
 {
 
     int duration = 0;   /* total output duration */
+    int retval = 0;
 
     t_codec_list * current_codec_list; 
-    t_output output;
+    t_output output;    
 
     SNDFILE * file;
     SF_INFO file_info;
@@ -146,8 +147,9 @@ int main(int argc, char ** argv)
 	uint32_t user_ts = 0; /* TODO: This should be random */
 
     /* Get options from command line */
-    if (get_options(argc, argv)){
-        return 1;
+    if (retval = get_options(argc, argv)){
+        wr_print_error();
+        return retval;
     }
     
     /* output initialization */
