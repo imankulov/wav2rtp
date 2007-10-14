@@ -3,9 +3,9 @@
 
 AC_PREREQ(2.61)
 AC_INIT(wav2rtp, 0.7pre)
-AM_INIT_AUTOMAKE(wav2rtp, 0.7pre)
+AM_INIT_AUTOMAKE
 
-AC_CONFIG_SRCDIR([wav2rtp.c])
+AC_CONFIG_SRCDIR([src/wav2rtp.c])
 AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
@@ -31,5 +31,5 @@ AC_TYPE_UINT8_T
 # AC_FUNC_MALLOC
 AC_CHECK_FUNCS([bzero gettimeofday strchr])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile conf/Makefile src/Makefile])
 AC_OUTPUT
