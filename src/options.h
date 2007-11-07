@@ -40,30 +40,29 @@
 #endif
 
 #include "contrib/iniparser.h"
+#include "contrib/simclist.h"
 #include "wav2rtp.h"
 
 /** Options passed from command-line arguments */
 typedef struct __options {
 
     char * filename;    
-    char * inet_addr;
-    int remote_port;    
 
-    t_codec_list * codec_list;
-    char * output_type;    
+    list_t * codec_list;
 
     char * output_filename;
 
     int print_sipp_scenario; /**< Set this value to true if you want to print additional info to generate SIPP scenario */
     dictionary * codecs_options; /**< Dictionary of codec options given from /etc/wav2rtp/codecs.conf */
+    dictionary * output_options; /**< Dictionary of output options given from /etc/wav2rtp/output.conf */
 
-} t_options;
+} wr_options_t;
 
 /** global application options */
-t_options wr_options;
+wr_options_t wr_options;
 
 int get_options(const int argc, char * const argv[]);
-int get_codec_list(char *, t_codec_list **);
-void free_codec_list(t_codec_list *);
+int get_codec_list(char *, list_t **);
+void free_codec_list(list_t *);
 void print_usage(void);
 #endif

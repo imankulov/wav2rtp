@@ -38,7 +38,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "network_emulator.h"
+#include "contrib/simclist.h"
 
+/** basic types */
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
 
 /** Codec abstraction object */
 typedef struct __codec{
@@ -56,17 +61,17 @@ typedef struct __codec{
     int (*encode)(void *, const short * , char *);
     void (*destroy)(struct __codec * );
 
-} t_codec;
+} wr_codec_t;
+
+/**  data frame object */
+typedef struct __wr_data_frame {
+    int length_in_ms;              /**< size of RTP data in ms */
+    size_t size;                   /**< size of data */
+    uint8_t * data;                /**< pointer to the data */
+} wr_data_frame_t;
 
 
-/** One way list of codecs */
-typedef struct __codec_list {
-    struct __codec_list * next;
-    struct __codec * codec;
-} t_codec_list;
-
-
-/** Output abstraction object (for pcap, RTP output or smth. else) */
+/** Output abstraction object (for pcap, RTP output or smth. else, currently implemented pcap files only) */
 typedef struct __output {
 
     /* Members */    
@@ -75,8 +80,14 @@ typedef struct __output {
 
 
     /* Methods */
-    int (* write)(void * state, const char * buffer, int buffer_length, int buffer_length_in_ms, int buffer_delay_in_ms, int should_be_forget); /**< write out data portion into its own datastream (file, network socket ...)  */
-    void (*set_payload_type)(struct __output *, int ); /**< if codec payload type changes during data writing, this method have to be called */
+    /**
+     * Write RTP data into UDP packet and store it into pcap file
+     * @param state internal state of output object (i.e. wr_pcap_state_t)
+     * @param data list of objects wr_data_frame_t
+     * @param codec object which were used to convert data frames 
+     * @netem 
+     */
+    int(*write)(void * state, list_t * data, wr_codec_t * codec, wr_network_emulator_t * netem);
     void (*destroy)(struct __output * );    /**< Pointer to function which destroy this  object */
-} t_output;
+} wr_output_t;
 #endif

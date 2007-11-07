@@ -39,15 +39,15 @@ This script runs wav2rtp and sipp one after another.
 Its behaviour is confugured with environement variables
 listed below:
 
-    WAV2RTP     path to wav2rtp program (default: search in \$PATH)
-    SIPP        path to sipp program (default: search in \$PATH)
-    SCENARIO    path to basic scenario.xml file (default: ./scenario.xml)
-    WAV         path to input .wav file (default: ./test.wav)
-    PCAP        path to output .pcap file (default: \$WAV with replace .wav to .pcap)
-    HOST        hostname and port (in format ip.ad.dre.ss:port ) where to send RTP data
-                (currently port is not used but should be pointed, default: 127.0.0.1:8000).
-    CODEC_LIST  comma-separated list of codecs which will be used to encode .wav file to RTP
-                (is not set by default thus must be defined explicitly)
+    WAV2RTP         path to wav2rtp program (default: search in \$PATH)
+    SIPP            path to sipp program (default: search in \$PATH)
+    SCENARIO        path to basic scenario.xml file (default: ./scenario.xml)
+    WAV             path to input .wav file (default: ./test.wav)
+    PCAP            path to output .pcap file (default: \$WAV with replace .wav to .pcap)
+    HOST            destination IP-address (default is 127.0.0.1)
+    CODEC_LIST      comma-separated list of codecs which will be used to encode .wav file to RTP
+                    (is not set by default thus must be defined explicitly)
+    CLIENT_USERNAME name of the service on the client-side (default: \"service\")
 
 Example: 
 
@@ -60,7 +60,7 @@ if [[ ! $WAV2RTP ]]; then
 fi
 
 if [[ ! $WAV2RTP ]]; then 
-    WAV2RTP=../wav2rtp
+    WAV2RTP=./wav2rtp
 fi
 
 if [[ ! -x $WAV2RTP ]]; then
@@ -91,6 +91,12 @@ if [[ ! -f $SCENARIO ]]; then
     exit 1
 fi
 
+# Define client name
+if [[ ! $CLIENT_USERNAME ]]; then 
+    CLIENT_USERNAME=service
+fi
+
+
 # Search for wav file
 if [[ ! $WAV ]]; then 
     WAV=test.wav
@@ -109,7 +115,7 @@ fi
 
 # Remote host
 if [[ ! $HOST ]]; then
-    HOST=127.0.0.1:8000
+    HOST=127.0.0.1
 fi
 
 # Codec list
@@ -125,7 +131,7 @@ play_pcap_xml_file=$(mktemp)
 scenario_file=$(mktemp)
 trap "rm -f $sdp_data_packet_file $play_pcap_xml_file $scenario_file" 0 2 3 15
 
-$WAV2RTP --host $HOST --from-file $WAV --codec-list $CODEC_LIST --output pcap --to-file $PCAP --print-sipp-scenario | awk "
+$WAV2RTP --from-file $WAV --codec-list $CODEC_LIST --to-file $PCAP --print-sipp-scenario | awk "
 /\*\*\*sdp_data_packet\*\*\*/{
     sdp_data_packet_found=1;
     play_pcap_xml_found=0;
@@ -149,9 +155,9 @@ cat $SCENARIO | sed -r "/\\*\\*\\*sdp_data_packet\\*\\*\\*/r $sdp_data_packet_fi
               | sed -r "/\\*\\*\\*play_pcap_xml\\*\\*\\*/r $play_pcap_xml_file" \
               | sed -r "/\\*\\*\\*.*\\*\\*\\*/d" > $scenario_file
 
-host_without_port=$(echo $HOST | awk -F: '{print $1}')
 if [[ $(id -u) == 0 ]]; then
-    $SIPP -m 1 -sf $scenario_file $host_without_port
+    $SIPP -m 1 -sf $scenario_file $HOST -s $CLIENT_USERNAME
 else
-    sudo $SIPP -m 1 -sf $scenario_file $host_without_port
+    sudo $SIPP -m 1 -sf $scenario_file $HOST -s $CLIENT_USERNAME -bind_local -mi 127.0.0.1
 fi
+exit 0

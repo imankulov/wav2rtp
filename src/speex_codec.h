@@ -38,14 +38,30 @@
 #include <speex/speex.h>
 #include "wav2rtp.h"
 
-// Speex codec helpers
+/** Speex codec object */
 typedef struct {
-    SpeexBits bits;     // Speex bit-packing struct 
-    void * enc_state;   // Speex encoder state
+
+    /* Speex state */
+    SpeexBits bits;     /**< speex bit-packing struct  */
+    void * enc_state;   /**< speex encoder state */
+
+    /* Speex options */
+    int quality;        /**< speex quality: 0<=q<=10 */
+    int complexity;     /**< speex encoder complexity */
+    int bitrate;        /**< bitrate */
+    int abr_enabled;    /**< average bitrate */
+    int vad_enabled;    /**< voice activity detection */
+    int dtx_enabled;    /**< discontinious transmission */
+    int vbr_enabled;    /**< boolean value, true if VBR (vraiable bit-rate) should be enabled */
+    float vbr_quality;  /**< VBR quality: 0<=q<=10 */
+    #ifdef SPEEX_SET_VBR_MAX_BITRATE
+    int vbr_max_bitrate;/**< max bitrate with VBR enabled */
+    #endif
+    
 } speex_state;
 
-t_codec *  wr_speex_init_codec(t_codec * );
-void wr_speex_destroy_codec(t_codec *);
+wr_codec_t *  wr_speex_init_codec(wr_codec_t * );
+void wr_speex_destroy_codec(wr_codec_t *);
 int wr_speex_get_input_buffer_size(void * state);
 int wr_speex_get_output_buffer_size(void * state);
 int wr_speex_encode(void * state, const short * input, char * output); 

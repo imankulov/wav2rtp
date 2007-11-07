@@ -36,7 +36,7 @@
 #include "options.h"
 
 
-t_codec * gsm_init_codec(t_codec * pcodec)
+wr_codec_t * gsm_init_codec(wr_codec_t * pcodec)
 {
     wr_gsm_state * state = malloc(sizeof(wr_gsm_state));
     if (!state)
@@ -62,7 +62,7 @@ t_codec * gsm_init_codec(t_codec * pcodec)
 }
 
 
-void wr_gsm_destroy_codec(t_codec * pcodec)
+void wr_gsm_destroy_codec(wr_codec_t * pcodec)
 {
     wr_gsm_state * state =  (wr_gsm_state * )(pcodec->state);
     gsm_destroy(state->handle);

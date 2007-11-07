@@ -39,11 +39,11 @@
 
 
 /**
- * Initialize object of type t_codec to use with Speex.
+ * Initialize object of type wr_codec_t to use with Speex.
  * Memory for pcodec object have to be already allocated
- * @return the same pinter to t_codec or NULL in case when something goes wrong 
+ * @return the same pinter to wr_codec_t or NULL in case when something goes wrong 
  */
-t_codec * wr_speex_init_codec(t_codec * pcodec)
+wr_codec_t * wr_speex_init_codec(wr_codec_t * pcodec)
 {
 
     speex_state * state = malloc(sizeof(speex_state));
@@ -52,6 +52,18 @@ t_codec * wr_speex_init_codec(t_codec * pcodec)
 
     speex_bits_init(&(state->bits));
     state->enc_state = speex_encoder_init(&speex_nb_mode);
+    
+    state->quality = iniparser_getint(wr_options.codecs_options, "speex:quality", -1);
+    state->complexity = iniparser_getint(wr_options.codecs_options, "speex:complexity", -1);
+    state->bitrate = iniparser_getint(wr_options.codecs_options, "speex:bitrate", -1);
+    state->abr_enabled = iniparser_getboolean(wr_options.codecs_options, "speex:abr_enabled", 0);
+    state->vad_enabled = iniparser_getboolean(wr_options.codecs_options, "speex:vad_enabled", 0);
+    state->dtx_enabled = iniparser_getboolean(wr_options.codecs_options, "speex:dtx_enabled", 0);
+    state->vbr_enabled = iniparser_getboolean(wr_options.codecs_options, "speex:vbr_enabled", 0);
+    state->vbr_quality = iniparser_getdouble(wr_options.codecs_options, "speex:vbr_quality", -1);
+    #ifdef SPEEX_SET_VBR_MAX_BITRATE
+    state->vbr_max_bitrate = iniparser_getint(wr_options.codecs_options, "speex:vbr_max_bitrate", -1);
+    #endif
 
     pcodec->name = "speex";
     pcodec->description = "Speex NB codec";
@@ -63,14 +75,41 @@ t_codec * wr_speex_init_codec(t_codec * pcodec)
     pcodec->get_output_buffer_size = &wr_speex_get_output_buffer_size;
     pcodec->encode = &wr_speex_encode;
     pcodec->destroy = &wr_speex_destroy_codec;
-    
+   
+    /* set up speex variables */
+    speex_encoder_ctl(state->enc_state, SPEEX_SET_VAD, &(state->vad_enabled));
+    speex_encoder_ctl(state->enc_state, SPEEX_SET_DTX, &(state->dtx_enabled));
+    speex_encoder_ctl(state->enc_state, SPEEX_SET_ABR, &(state->abr_enabled));
+    speex_encoder_ctl(state->enc_state, SPEEX_SET_VBR, &(state->vbr_enabled));
+    if (state->vbr_quality >= 0 && state->vbr_quality <= 10){
+        speex_encoder_ctl(state->enc_state, SPEEX_SET_VBR_QUALITY, &(state->vbr_quality));
+    }else{
+        state->vbr_quality = -1;
+    }
+    #ifdef SPEEX_SET_VBR_MAX_BITRATE
+    if (state->vbr_max_bitrate > 0){
+        speex_encoder_ctl(state->enc_state, SPEEX_SET_VBR_MAX_BITRATE, &(state->vbr_max_bitrate));
+    }else{
+        state->vbr_max_bitrate = -1;
+    }
+    #endif
+    if (state->quality >= 0 && state->quality <= 10){
+        speex_encoder_ctl(state->enc_state, SPEEX_SET_QUALITY, &(state->quality));
+    }else{
+        state->quality = -1;
+    }
+    if (state->complexity >= 0 && state->complexity <= 10){
+        speex_encoder_ctl(state->enc_state, SPEEX_SET_COMPLEXITY, &(state->complexity));
+    }else{
+        state->complexity = -1;
+    }
     return pcodec;
 }
 
 /**
- * Destroy object of type t_codec for Speex
+ * Destroy object of type wr_codec_t for Speex
  */
-void wr_speex_destroy_codec(t_codec * pcodec)
+void wr_speex_destroy_codec(wr_codec_t * pcodec)
 {
     speex_state * state = (speex_state*)(pcodec->state);
     speex_encoder_destroy(state->enc_state);
@@ -103,8 +142,13 @@ int wr_speex_get_input_buffer_size(void * state)
  */
 int wr_speex_get_output_buffer_size(void * state)
 {
-    speex_state * sstate = (speex_state *)state;
-    return speex_bits_nbytes(&(sstate->bits));
+    speex_state * s = (speex_state *)state;
+    /* FIXME: it's not a right way (need to use speex_bits_nbytes),
+       but I don't know why  speex_bits_nbytes always returns 0 */
+    int frame_size = 0;
+    speex_encoder_ctl(s->enc_state, SPEEX_GET_FRAME_SIZE, &frame_size);
+    return frame_size;
+    /* return speex_bits_nbytes(&(s->bits)); */
 }
 /**
  * Do encoding of the one data frame

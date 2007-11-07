@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT(wav2rtp, 0.7)
+AC_INIT(wav2rtp, 0.8pre)
 AM_INIT_AUTOMAKE
 
 AC_CONFIG_SRCDIR([src/wav2rtp.c])
@@ -13,7 +13,10 @@ AC_PROG_CC
 
 # Checks for libraries.
 AC_CHECK_LIB([gsm], [gsm_create])
+
+# ortp is needed only in header files
 AC_CHECK_LIB([ortp], [rtp_session_new])
+
 AC_CHECK_LIB([sndfile], [sf_open])
 AC_CHECK_LIB([speex], [speex_encoder_init])
 

@@ -44,8 +44,8 @@ typedef struct {
 } dummy_state;
 
 
-t_codec * dummy_init_codec(t_codec * pcodec);
-void dummy_destroy_codec(t_codec * pcodec);
+wr_codec_t * dummy_init_codec(wr_codec_t * pcodec);
+void dummy_destroy_codec(wr_codec_t * pcodec);
 int dummy_get_input_buffer_size(void * state);
 int dummy_get_output_buffer_size(void * state);
 int dummy_encode(void * state, const short * input, char * output); 

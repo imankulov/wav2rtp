@@ -36,7 +36,7 @@
 #include "contrib/g711.h"
 #include "options.h"
 
-t_codec * g711u_init_codec(t_codec * pcodec)
+wr_codec_t * g711u_init_codec(wr_codec_t * pcodec)
 {
     wr_g711u_state * state = malloc(sizeof(wr_g711u_state));
     if (!state)
@@ -58,7 +58,7 @@ t_codec * g711u_init_codec(t_codec * pcodec)
 }
 
 
-void wr_g711u_destroy_codec(t_codec * pcodec)
+void wr_g711u_destroy_codec(wr_codec_t * pcodec)
 {
     free(pcodec->state);
 }

@@ -34,8 +34,6 @@
  */
 #include <string.h>
 #include <sndfile.h> 
-#include <ortp/ortp.h>
-
 
 #include "wav2rtp.h"
 
@@ -47,8 +45,8 @@
 #include "gsm_codec.h"
 #include "g711u_codec.h"
 
-#include "rtp_output.h"
-#include "raw_output.h"
+#include "network_emulator.h"
+
 #include "pcap_output.h"
 
 /** XXX: unused */
@@ -67,8 +65,6 @@ int print_sdp()
 void print_sipp_scenario(int duration)
 {
 
-    t_codec_list * current_codec = wr_options.codec_list;
-
     if (!wr_options.print_sipp_scenario)
         return; 
 
@@ -82,40 +78,33 @@ void print_sipp_scenario(int duration)
         "m=audio [auto_media_port] RTP/AVP ");
 
     /* Print payload types without duplicates */
-    while(current_codec){
-        /* forward check for duplicates */
-        t_codec_list * tmp = current_codec->next;
-        int duplicate_found = 0;
-        while(tmp){
-            if (tmp->codec->payload_type == current_codec->codec->payload_type){
-                duplicate_found = 1;
-                break;
-            }
-            tmp = tmp->next; 
-        }
-        if(!duplicate_found){
-            printf("%d ", current_codec->codec->payload_type);
-        } 
-        current_codec = current_codec->next;
+    list_iterator_start(wr_options.codec_list);
+    while(list_iterator_hasnext(wr_options.codec_list)){
+        wr_codec_t * current_codec = (wr_codec_t *)list_iterator_next(wr_options.codec_list);
+        printf("%d ", current_codec->payload_type);
+        /* TODO:  check for duplicates */
     }
     printf("\n");
-    current_codec = wr_options.codec_list;
-    while(current_codec){
-        /* once again forward check for duplicates */
-        t_codec_list * tmp = current_codec->next;
-        int duplicate_found = 0;
-        while(tmp){
-            if (tmp->codec->payload_type == current_codec->codec->payload_type){
-                duplicate_found = 1;
-                break;
-            }
-            tmp = tmp->next; 
-        }
-        if (!duplicate_found){
-            printf("a=rtpmap:%d %s/%d\n", current_codec->codec->payload_type, current_codec->codec->name, current_codec->codec->sample_rate);
-        }
-        current_codec = current_codec->next;
+    list_iterator_stop(wr_options.codec_list);
+
+    list_iterator_start(wr_options.codec_list);
+    while(list_iterator_hasnext(wr_options.codec_list)){
+        wr_codec_t * current_codec = (wr_codec_t *)list_iterator_next(wr_options.codec_list);
+        printf("a=rtpmap:%d %s/%d\n", current_codec->payload_type, current_codec->name, current_codec->sample_rate);
     }
+    list_iterator_stop(wr_options.codec_list);
+    /* speex hack */
+    /*
+    list_iterator_start(wr_options.codec_list);
+    while(list_iterator_hasnext(wr_options.codec_list)){
+        wr_codec_t * current_codec = (wr_codec_t *)list_iterator_next(wr_options.codec_list);
+        if (strncmp(current_codec->name, "speex", 6)==0){
+            speex_state * state = (speex_state *)current_codec->state;
+            printf("a=fmtp:%d mode=%d;mode=%d\n", current_codec->payload_type, state->quality, state->quality);
+        }
+    }
+    list_iterator_stop(wr_options.codec_list);
+    */
     printf("\n");
 
     if (wr_options.output_filename){
@@ -131,76 +120,49 @@ void print_sipp_scenario(int duration)
 }
 
 
-
 int main(int argc, char ** argv)
 {
 
     int duration = 0;   /* total output duration */
-    int retval = 0;
+    int get_options_retval = 0;
 
-    t_codec_list * current_codec_list; 
-    t_output output;    
+    wr_output_t output;
+    wr_network_emulator_t netem;
+    wr_data_frame_t * current_frame = NULL;
+    wr_codec_t * codec;
+    int frames_count = 0;
+    list_t * data_frames = NULL;
 
     SNDFILE * file;
     SF_INFO file_info;
 
-	uint32_t user_ts = 0; /* TODO: This should be random */
-
-    /* Get options from command line */
-    if (retval = get_options(argc, argv)){
+    /* get options from command line */
+    if (get_options_retval = get_options(argc, argv)){
         wr_print_error();
-        return retval;
-    }
-    
-    /* output initialization */
-    if (strncmp(wr_options.output_type, "rtp", 4) == 0){
-        if (!wr_rtp_init_output(&output)){
-            perror("Cannot initalize datastructure to send data via RTP");
-            free_codec_list(wr_options.codec_list);
-            return CANNOT_INITIALIZE_OUTPUT;
-        }
-    }else if(strncmp(wr_options.output_type, "raw", 4) == 0){
-        if (!wr_options.output_filename){
-            printf("Output filename is not set");
-            free_codec_list(wr_options.codec_list);
-            return CANNOT_INITIALIZE_OUTPUT;
-        }
-        if (strncmp(wr_options.output_filename, wr_options.filename, 1024) == 0){
-            printf("Output filename is the same that input filename");
-            free_codec_list(wr_options.codec_list);
-            return CANNOT_INITIALIZE_OUTPUT;
-        }       
-        if(!wr_raw_init_output(&output)){
-            perror("Cannot write datastructure into raw file");
-            free_codec_list(wr_options.codec_list);
-            return CANNOT_INITIALIZE_OUTPUT;
-        }
-    }else if(strncmp(wr_options.output_type, "pcap", 5) == 0){
-        if (!wr_options.output_filename){
-            perror("Output filename is not set");
-            free_codec_list(wr_options.codec_list);
-            return CANNOT_INITIALIZE_OUTPUT;
-        }
-        if (strncmp(wr_options.output_filename, wr_options.filename, 1024) == 0){
-            printf("Output filename is the same that input filename");
-            free_codec_list(wr_options.codec_list);
-            return CANNOT_INITIALIZE_OUTPUT;
-        }       
-        if(!wr_pcap_init_output(&output)){
-            perror("Cannot write datastructure into pcap file");
-            free_codec_list(wr_options.codec_list);
-            return CANNOT_INITIALIZE_OUTPUT;
-        }
-    }else{
-        printf("Output type not recognized");
-        free_codec_list(wr_options.codec_list);
-        return OUTPUT_NOT_RECOGNIZED;
+        return get_options_retval;
     }
 
-    /* Read data and encode it with selected codec */
+    /* network emulator initialization */
+    wr_network_emulator_init(&netem);
     
-    /* Open WAV file */
-    bzero(&file_info, sizeof(file_info));
+    /* output initialization. there is only one output type: pcap files */
+    if (!wr_options.output_filename){
+        fprintf(stderr, "Output filename is not set");
+        free_codec_list(wr_options.codec_list);
+        return CANNOT_INITIALIZE_OUTPUT;
+    }
+    if (strncmp(wr_options.output_filename, wr_options.filename, 1024) == 0){
+        fprintf(stderr, "Output filename is the same that input filename");
+        free_codec_list(wr_options.codec_list);
+        return CANNOT_INITIALIZE_OUTPUT;
+    }       
+    if(!wr_pcap_init_output(&output)){
+        wr_print_error();
+        free_codec_list(wr_options.codec_list);
+        return CANNOT_INITIALIZE_OUTPUT;
+    }
+    
+    /* open WAV file */
     file = sf_open(wr_options.filename, SFM_READ, &file_info);
     if (!file){
         printf("Cannot open or render sound file");
@@ -211,44 +173,75 @@ int main(int argc, char ** argv)
         sf_close(file);
         return CANNOT_RENDER_WAVFILE; 
     }
-    current_codec_list = wr_options.codec_list;
 
-    while(current_codec_list){
-        t_codec codec = *(current_codec_list->codec);
+    list_iterator_start(wr_options.codec_list);
+    if (list_iterator_hasnext(wr_options.codec_list)){
+        codec = (wr_codec_t*)list_iterator_next(wr_options.codec_list); 
+    }else{
+        codec = NULL;
+    }
+    while(codec){
+        
+        int input_buffer_size = (*codec->get_input_buffer_size)(codec->state);
+        int output_buffer_size = (*codec->get_output_buffer_size)(codec->state);        
+        short input_buffer[input_buffer_size];
+        int tmp_frame_size = 0;
 
-        /* Update payload type to output */
-        (*output.set_payload_type)(&output, codec.payload_type);
-
-        while(1){
-            int input_buffer_size = (*codec.get_input_buffer_size)(codec.state);
-            int output_buffer_size = (*codec.get_input_buffer_size)(codec.state);
-            short input_buffer[input_buffer_size];
-            char output_buffer[output_buffer_size];
-
-            bzero(input_buffer, input_buffer_size * sizeof(short));
-            input_buffer_size = sf_read_short(file, input_buffer, input_buffer_size);
-
-            duration += input_buffer_size * 1000 / file_info.samplerate;
-
-            if (!input_buffer_size){/* EOF */
-                sf_seek(file, 0, SEEK_SET);
-                break;
+        bzero(input_buffer, input_buffer_size * sizeof(short));
+        input_buffer_size = sf_read_short(file, input_buffer, input_buffer_size);
+        if (!input_buffer_size){/* EOF */            
+            if (data_frames){
+                (*output.write)(output.state, data_frames, codec, &netem);
+                data_frames = NULL;
             }
-
-            /* encode data */
-            bzero(output_buffer, output_buffer_size);
-            output_buffer_size = (*codec.encode)(codec.state, input_buffer, output_buffer);
-     
-            /* write out  encoded data */
-            (*output.write)(output.state, output_buffer, output_buffer_size, 1000 * input_buffer_size / file_info.samplerate, 0, 0);
+            sf_seek(file, 0, SEEK_SET);
+            if (list_iterator_hasnext(wr_options.codec_list)){
+                codec = (wr_codec_t*)list_iterator_next(wr_options.codec_list);
+            }else{
+                codec = NULL;
+                list_iterator_stop(wr_options.codec_list);
+            }
+            continue;
         }
-
-        /* Next iteration */
-        current_codec_list = current_codec_list->next;
-    }    
+        duration += input_buffer_size * 1000 / file_info.samplerate;
+        current_frame = (wr_data_frame_t *)malloc(sizeof(wr_data_frame_t));
+        if (!current_frame){
+            wr_set_error("Error in memory allocation");
+            return CANNOT_RENDER_WAVFILE;
+        }
+        bzero(current_frame, sizeof(wr_data_frame_t));
+        if (!data_frames){
+            data_frames = (list_t *)malloc(sizeof(list_t));
+            if (!data_frames){
+                wr_set_error("Error in memory allocation");
+            }
+            bzero(data_frames, sizeof(*data_frames));
+            list_init(data_frames);
+            frames_count = 0;
+        }else{
+            frames_count ++;
+        }
+        list_append(data_frames, current_frame);
+        tmp_frame_size = output_buffer_size;
+        current_frame->length_in_ms = 1000 * input_buffer_size / file_info.samplerate;
+        current_frame->data = malloc(output_buffer_size);
+        if (!current_frame->data){
+            wr_set_error("Error in memory allocation for datastructure");
+            return CANNOT_RENDER_WAVFILE;
+        }
+        bzero(current_frame->data, output_buffer_size);
+        current_frame->size = (*codec->encode)(codec->state, input_buffer, current_frame->data);
+        if (current_frame->size > tmp_frame_size){
+            printf("ooops: encoding process fill more memory than allocated into it\n");
+        }
+        if (frames_count == iniparser_getpositiveint(wr_options.output_options, "global:rtp_in_frame", 1) - 1 ){
+            (*output.write)(output.state, data_frames, codec, &netem);
+            data_frames = NULL;
+        }
+    }   
+    print_sipp_scenario(duration);
     sf_close(file);
     (*output.destroy)(&output);
     free_codec_list(wr_options.codec_list);
-    print_sipp_scenario(duration);
     return 0; 
 }
