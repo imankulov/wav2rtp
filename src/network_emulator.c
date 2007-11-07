@@ -4,6 +4,7 @@
 
 #include "options.h"
 #include "contrib/iniparser.h"
+#include "contrib/ranlib/ranlib.h"
 #include "network_emulator.h"
 #include "error_types.h"
 #include "misc.h"
@@ -20,6 +21,7 @@ wr_network_emulator_t * wr_network_emulator_init(wr_network_emulator_t * netem)
         bzero(netem->seed, sizeof(netem->seed));
         if (seed[0] == '0' && seed[1] == '\0'){             
             time_t time_loc;
+            
             time(&time_loc);
             memcpy(netem->seed, &time, sizeof(time_t));
             if(!initstate(1, netem->seed, sizeof(netem->seed))){
@@ -33,7 +35,10 @@ wr_network_emulator_t * wr_network_emulator_init(wr_network_emulator_t * netem)
                 return NULL;
             }
         }
-    }    
+    }   
+    {
+        setall(random(), random());
+    } 
     {
         char * loss_model;
         loss_model = iniparser_getstring(wr_options.output_options, "network_emulator:loss_model", "none");
@@ -66,6 +71,10 @@ wr_network_emulator_t * wr_network_emulator_init(wr_network_emulator_t * netem)
             if (netem->delay.uniform.min > netem->delay.uniform.max){
                 int tmp = netem->delay.uniform.min; netem->delay.uniform.min = netem->delay.uniform.max; netem->delay.uniform.max = tmp;
             }
+        }else if (strncmp(delay_model, "gamma", 6) == 0){
+            netem->delay_model = GAMMA_DELAY;
+            netem->delay.gamma.shape = iniparser_getpositiveint(wr_options.output_options, "network_emulator:delay_gamma_shape", 0);
+            netem->delay.gamma.scale = iniparser_getpositiveint(wr_options.output_options, "network_emulator:delay_gamma_scale", 0);
         }
         /* TODO: other delays not yet implemented */
     }
@@ -113,6 +122,8 @@ int wr_network_emulator_next(wr_network_emulator_t * netem, wr_packet_state_t * 
         long randlong = rand();        
         double rand = (double)randlong/RAND_MAX; /*  assume that rand always < 1  */
         state->delay = a + ( b + 1 - a ) * rand;
+    } else if (netem->delay_model == GAMMA_DELAY) {
+        state->delay = (int)gengam(1/(float)netem->delay.gamma.scale, netem->delay.gamma.shape);
     } else { /* TODO: Not yet implemented */
         state->delay = 0;
     }

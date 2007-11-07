@@ -16,9 +16,9 @@
 /** Uniform delay */
 #define UNIFORM_DELAY    1
 /** Gamma delay */
-#define GAMMA_DELAY 
+#define GAMMA_DELAY      2 
 /** Delay distribution based on external statistic data */
-#define STATISTIC_DELAY
+#define STATISTIC_DELAY  3
 
 
 /**
@@ -55,7 +55,7 @@ typedef struct __wr_network_emulator {
         } uniform;
         /* for gamma distribution */
         struct {
-            int k;
+            int shape;
             int scale;
         } gamma;
         /* for external statistic data distribution */
