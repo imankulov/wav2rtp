@@ -45,6 +45,7 @@ listed below:
     WAV             path to input .wav file (default: ./test.wav)
     PCAP            path to output .pcap file (default: \$WAV with replace .wav to .pcap)
     HOST            destination IP-address (default is 127.0.0.1)
+    THISHOST        source (this host) IP-address (default is 127.0.0.1)
     CODEC_LIST      comma-separated list of codecs which will be used to encode .wav file to RTP
                     (is not set by default thus must be defined explicitly)
     CLIENT_USERNAME name of the service on the client-side (default: \"service\")
@@ -118,6 +119,11 @@ if [[ ! $HOST ]]; then
     HOST=127.0.0.1
 fi
 
+# Local host
+if [[ ! $THISHOST ]]; then
+    THISHOST=127.0.0.1
+fi
+
 # Codec list
 
 if [[ ! $CODEC_LIST ]]; then
@@ -156,8 +162,8 @@ cat $SCENARIO | sed -r "/\\*\\*\\*sdp_data_packet\\*\\*\\*/r $sdp_data_packet_fi
               | sed -r "/\\*\\*\\*.*\\*\\*\\*/d" > $scenario_file
 
 if [[ $(id -u) == 0 ]]; then
-    $SIPP -m 1 -sf $scenario_file $HOST -s $CLIENT_USERNAME
+    $SIPP -m 1 -sf $scenario_file $HOST -s $CLIENT_USERNAME -i $THISHOST
 else
-    sudo $SIPP -m 1 -sf $scenario_file $HOST -s $CLIENT_USERNAME -bind_local -mi 127.0.0.1
+    sudo $SIPP -m 1 -sf $scenario_file $HOST -s $CLIENT_USERNAME -i $THISHOST
 fi
 exit 0
