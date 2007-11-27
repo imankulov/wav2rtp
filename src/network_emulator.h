@@ -36,9 +36,6 @@ typedef struct __wr_network_emulator {
     /** One of these delay models may be used: none, uniform, gamma or statistic data based delay */
     int delay_model;
 
-    /** Initial seed */
-    char seed[256];
-
     /**
      * loss rate
      */
@@ -59,15 +56,17 @@ typedef struct __wr_network_emulator {
         struct {
             double loss_rate; 
             int chain_size;
-            int __prev_lost; /* internal variable - number of previously lost packets */
+            int __position; /* internal variable - postion of the current packet in the chain */
+            int __is_lost;  /* internal variable - non-zero if current chain have to be lost whole */
         } chained;
 
         /* chained_int */
         struct {
             double loss_rate;
             int chain_size;
-            list_t data_frames;  /* this stroes a list of data frames */
-            int __prev_lost; /* internal variable - number of previously lost packets */
+            list_t * data_frames;  /* this stores an array of list_t objects of data frames */
+            int __position; /* internal variable - position of the current packet in the chain */
+            int __is_lost;  /* internal variable - non-zero if current chain have to be lost whole */
         } chained_int;
     } loss;
 
