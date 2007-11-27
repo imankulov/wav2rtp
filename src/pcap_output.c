@@ -197,6 +197,8 @@ int wr_pcap_write(void * state, list_t * data_frames, wr_codec_t * codec, wr_net
 {
     wr_packet_state_t packet_state;
     wr_pcap_state_t * s = (wr_pcap_state_t *)state;
+    packet_state.data_frames = data_frames;
+
 
     wr_network_emulator_next(netem, &packet_state);
     if (packet_state.lost) {

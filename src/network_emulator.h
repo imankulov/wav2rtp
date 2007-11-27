@@ -9,6 +9,10 @@
 #define INDEPENDENT_LOSS 1
 /** losses are represented as random Markov process */
 #define MARKOV_LOSS      2
+/** chained losses */
+#define CHAINED_LOSS     3
+/** chained losses with interpolation */
+#define CHAINED_INT_LOSS 4
 
 
 /** None delay */
@@ -22,14 +26,14 @@
 
 
 /**
- * Internal structure which store information about network emulator parameters and current state 
+ * Internal structure which stores information about network emulator parameters and its current state 
  */
 typedef struct __wr_network_emulator {
 
     /** One of these loss models may be used: none losses, independent losses or lossed represented by markov chain  */
     int loss_model;
 
-    /** One of these delay models may be used: none, uniform, gamma or statistic delay */
+    /** One of these delay models may be used: none, uniform, gamma or statistic data based delay */
     int delay_model;
 
     /** Initial seed */
@@ -37,12 +41,35 @@ typedef struct __wr_network_emulator {
 
     /**
      * loss rate
-     * If loss is represented as "independent" then algorithm use only first value from array 
-     * Elsewere loss_rate[0] is the loss probability if previous packed was NOT be lost and 
-     * loss_rate[1] is the loss probability if previous packed was lost.
-     * 0<= loss_rate[i] <= 1 
      */
-    double loss_rate[2];
+    union {
+        /* independent losses */
+        struct {
+            double loss_rate;
+        } independent;
+
+        /* markov losses */
+        struct {
+            double loss_0_1;
+            double loss_1_1;
+            int __prev_packet_lost; /* internal variable */
+        } markov;
+
+        /* chained losses */
+        struct {
+            double loss_rate; 
+            int chain_size;
+            int __prev_lost; /* internal variable - number of previously lost packets */
+        } chained;
+
+        /* chained_int */
+        struct {
+            double loss_rate;
+            int chain_size;
+            list_t data_frames;  /* this stroes a list of data frames */
+            int __prev_lost; /* internal variable - number of previously lost packets */
+        } chained_int;
+    } loss;
 
     /**
      * Union which  contains information about delay parameters
@@ -75,6 +102,7 @@ typedef struct __wr_network_emulator {
 typedef struct  __wr_packet_state {
     int lost; /**< data packet should be lost */
     int delay; /**< delay (int) of the packet (in microseconds) */    
+    list_t * data_frames; /**< pointer to the data frames which may be changed by network emulator */
 } wr_packet_state_t;
 
 wr_network_emulator_t * wr_network_emulator_init(wr_network_emulator_t * netem);

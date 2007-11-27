@@ -232,7 +232,7 @@ int main(int argc, char ** argv)
         bzero(current_frame->data, output_buffer_size);
         current_frame->size = (*codec->encode)(codec->state, input_buffer, current_frame->data);
         if (current_frame->size > tmp_frame_size){
-            printf("ooops: encoding process fill more memory than allocated into it\n");
+            printf("ooops: encoding process fill more memory than allocated to it\n");
         }
         if (frames_count == iniparser_getpositiveint(wr_options.output_options, "global:rtp_in_frame", 1) - 1 ){
             (*output.write)(output.state, data_frames, codec, &netem);

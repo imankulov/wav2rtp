@@ -80,6 +80,16 @@ int iniparser_find_entry(dictionary  *   ini, char        *   entry);
 int iniparser_setstr(dictionary * ini, char * entry, char * val);
 void iniparser_unset(dictionary * ini, char * entry);
 
+/* dictionary methods */
+
+static unsigned dictionary_hash(char * key);
+static dictionary * dictionary_new(int size);
+static void dictionary_del(dictionary * d);
+static char * dictionary_get(dictionary * d, char * key, char * def);
+static void dictionary_set(dictionary * d, char * key, char * val);
+static void dictionary_unset(dictionary * d, char * key);
+static void dictionary_dump(dictionary *d, FILE *f);
+
 #ifdef __cplusplus
 }
 #endif

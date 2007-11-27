@@ -44,19 +44,39 @@ wr_network_emulator_t * wr_network_emulator_init(wr_network_emulator_t * netem)
         loss_model = iniparser_getstring(wr_options.output_options, "network_emulator:loss_model", "none");
         if (strncmp(loss_model, "none", 5) == 0){
             netem->loss_model = NONE_LOSS;
+
         } else if (strncmp(loss_model, "independent", 12) == 0) {
             netem->loss_model = INDEPENDENT_LOSS;
-            netem->loss_rate[0] = iniparser_getdouble(wr_options.output_options, "network_emulator:loss_rate", 0);
-            if (netem->loss_rate[0] < 0 )  netem->loss_rate[0] = 0;
-            if (netem->loss_rate[0] > 1 )  netem->loss_rate[0] = 1; 
-        } else {
+            netem->loss.independent.loss_rate = iniparser_getdouble(wr_options.output_options, "network_emulator:loss_rate", 0);
+            if (netem->loss.independent.loss_rate < 0 )  netem->loss.independent.loss_rate = 0;
+            if (netem->loss.independent.loss_rate > 1 )  netem->loss.independent.loss_rate = 1; 
+
+        } else if (strncmp(loss_model, "markov", 7) == 0) {
             netem->loss_model = MARKOV_LOSS;
-            netem->loss_rate[0] = iniparser_getdouble(wr_options.output_options, "network_emulator:loss_0_1", 0);
-            if (netem->loss_rate[0] < 0 )  netem->loss_rate[0] = 0;
-            if (netem->loss_rate[0] > 1 )  netem->loss_rate[0] = 1;
-            netem->loss_rate[1] = iniparser_getdouble(wr_options.output_options, "network_emulator:loss_1_1", 0);
-            if (netem->loss_rate[1] < 0 )  netem->loss_rate[1] = 0;
-            if (netem->loss_rate[1] > 1 )  netem->loss_rate[1] = 1;        
+            netem->loss.markov.loss_0_1 = iniparser_getdouble(wr_options.output_options, "network_emulator:loss_0_1", 0);
+            if (netem->loss.markov.loss_0_1 < 0 )  netem->loss.markov.loss_0_1 = 0;
+            if (netem->loss.markov.loss_0_1 > 1 )  netem->loss.markov.loss_0_1 = 1;
+            netem->loss.markov.loss_1_1 = iniparser_getdouble(wr_options.output_options, "network_emulator:loss_1_1", 0);
+            if (netem->loss.markov.loss_1_1 < 0 )  netem->loss.markov.loss_1_1 = 0;
+            if (netem->loss.markov.loss_1_1 > 1 )  netem->loss.markov.loss_1_1 = 1;
+
+        } else if (strncmp(loss_model, "chained", 8) == 0) {
+            netem->loss_model = CHAINED_LOSS;
+            netem->loss.chained.loss_rate = iniparser_getdouble(wr_options.output_options, "network_emulator:loss_rate", 0);
+            if (netem->loss.chained.loss_rate < 0 )  netem->loss.chained.loss_rate = 0;
+            if (netem->loss.chained.loss_rate > 1 )  netem->loss.chained.loss_rate = 1;
+            netem->loss.chained.chain_size = iniparser_getpositiveint(wr_options.output_options, "network_emulator:chain_size", 1);
+
+        } else if (strncmp(loss_model, "chained_int", 12) == 0) {
+            netem->loss_model = CHAINED_INT_LOSS;
+            netem->loss.chained_int.loss_rate = iniparser_getdouble(wr_options.output_options, "network_emulator:loss_rate", 0);
+            if (netem->loss.chained_int.loss_rate < 0 )  netem->loss.chained_int.loss_rate = 0;
+            if (netem->loss.chained_int.loss_rate > 1 )  netem->loss.chained_int.loss_rate = 1; 
+            netem->loss.chained_int.chain_size = iniparser_getpositiveint(wr_options.output_options, "network_emulator:chain_size", 1);
+
+        } else {
+            wr_set_error("Unable to determine loss model");
+            return NULL;
         }
     }  
     {
@@ -87,32 +107,129 @@ wr_network_emulator_t * wr_network_emulator_init(wr_network_emulator_t * netem)
  * */
 int wr_network_emulator_next(wr_network_emulator_t * netem, wr_packet_state_t * state)
 {
-    bzero(state, sizeof(*state));
     if (netem->loss_model == NONE_LOSS){
-        netem->__prev_packet_lost = 0;
+        state->lost = 0;
     } else if (netem->loss_model == INDEPENDENT_LOSS){
         double rand = (double)random() / RAND_MAX;
-        if (rand < netem->loss_rate[0]){
-            netem->__prev_packet_lost = 1;
-        } else {
-            netem->__prev_packet_lost = 0;
-        }
-    } else {
+        state->lost = (rand < netem->loss.independent.loss_rate) ? 1 : 0; 
+    } else if (netem->loss_model == MARKOV_LOSS){
         double rand = (double)random() / RAND_MAX;
-        double threshold;
-        if (netem->__prev_packet_lost){
-            threshold = netem->loss_rate[1];
-        }else{
-            threshold = netem->loss_rate[0];
+        double threshold =  (netem->loss.markov.__prev_packet_lost) ? netem->loss.markov.loss_1_1 : netem->loss.markov.loss_0_1;
+        netem->loss.markov.__prev_packet_lost = (rand < threshold) ? 1 : 0;
+        state->lost = netem->loss.markov.__prev_packet_lost;
+    } else if (netem->loss_model == CHAINED_LOSS ){        
+        if ( netem->loss.chained.__prev_lost ){ /* several previous packets already lost */
+            if (netem->loss.chained.__prev_lost == netem->loss.chained.chain_size){ /* no more losses */
+                netem->loss.chained.__prev_lost = 0;
+                state->lost = 0;
+            } else { /* yet another packet have to be lost */
+                netem->loss.chained.__prev_lost ++;
+                state->lost = 1;
+            }
         }
-        if (rand < threshold){
-            netem->__prev_packet_lost = 1;
-        } else {
-            netem->__prev_packet_lost = 0;
+        if ( !netem->loss.chained.__prev_lost ) { /* nothing is yet lost  */
+            double rand = (double)random() / RAND_MAX;
+            double threshold = netem->loss.chained.loss_rate / netem->loss.chained.chain_size;
+            netem->loss.chained.__prev_lost = (rand < threshold) ? 1 : 0;
+            state->lost = netem->loss.chained.__prev_lost;               
         }
-        /* printf("%f %f %d\n", rand, threshold, netem->__prev_packet_lost); */
-    }
-    state->lost = netem->__prev_packet_lost;
+    } else if (netem->loss_model == CHAINED_INT_LOSS ){        
+        state->lost = 0;
+        if ( netem->loss.chained_int.__prev_lost ){/* several previous packets already lost */
+            if (netem->loss.chained_int.__prev_lost == netem->loss.chained_int.chain_size){ /* no more losses */
+                netem->loss.chained_int.__prev_lost = 0;
+            } else { /* yet another packet have to be lost */
+                printf("-\n");
+                list_t * data_frames = &(netem->loss.chained_int.data_frames);
+                /* remove all current data ... */
+                list_iterator_start(state->data_frames);
+                while(list_iterator_hasnext(state->data_frames)){
+                    wr_data_frame_t * tmp  = list_iterator_next(state->data_frames);
+                    free(tmp->data);
+                }
+                list_iterator_stop(state->data_frames);
+                list_destroy(state->data_frames);
+                /* ... and restore saved list instead */
+                list_init(state->data_frames); 
+                list_iterator_start(data_frames);
+                while (list_iterator_hasnext(data_frames)){
+                    /* store all data frames */
+                    wr_data_frame_t * tmp  = list_iterator_next(data_frames);
+                    wr_data_frame_t * frame = calloc(1, sizeof(wr_data_frame_t));
+                    frame->data = calloc(tmp->size, sizeof(uint8_t));
+                    memcpy(frame->data, tmp->data, tmp->size);
+                    frame->length_in_ms = tmp->length_in_ms;
+                    frame->size = tmp->size;
+                    list_append(state->data_frames, frame);
+                }
+                list_iterator_stop(data_frames);
+                netem->loss.chained_int.__prev_lost ++;
+            }
+        }
+
+
+        if ( !netem->loss.chained_int.__prev_lost ) { /* nothing is yet lost  */
+            double rand = (double)random() / RAND_MAX;
+            double threshold = netem->loss.chained_int.loss_rate / netem->loss.chained_int.chain_size;
+            //double threshold = netem->loss.chained_int.loss_rate;
+            netem->loss.chained_int.__prev_lost = (rand < threshold) ? 1 : 0;
+            if (netem->loss.chained_int.__prev_lost) { /* current packet have to be lost */
+                printf("-\n");
+                list_t * data_frames = &(netem->loss.chained_int.data_frames);
+                if (list_empty(data_frames) == 0){ /* list is empty, nothing to duplicate */
+                    state->lost = 1;
+                } else {
+                    /* remove all current data ... */
+                    list_iterator_start(state->data_frames);
+                    while(list_iterator_hasnext(state->data_frames)){
+                        wr_data_frame_t * tmp  = list_iterator_next(state->data_frames);
+                        free(tmp->data);
+                    }
+                    list_iterator_stop(state->data_frames);
+                    list_destroy(state->data_frames);
+                    /* ... and restore saved list instead */
+                    list_init(state->data_frames); 
+                    list_iterator_start(data_frames);
+                    while (list_iterator_hasnext(data_frames)){
+                        /* store all data frames */
+                        wr_data_frame_t * tmp  = list_iterator_next(data_frames);
+                        wr_data_frame_t * frame = calloc(1, sizeof(wr_data_frame_t));
+                        frame->data = calloc(tmp->size, sizeof(uint8_t));
+                        memcpy(frame->data, tmp->data, tmp->size);
+                        frame->length_in_ms = tmp->length_in_ms;
+                        frame->size = tmp->size;
+                        list_append(state->data_frames, frame);
+                    }
+                    list_iterator_stop(data_frames);
+                }
+            } else { /* current packet have not to be lost, so save its data in the internal buffer (if following packet were lost ) */
+                printf("+\n");
+                list_t * data_frames = &(netem->loss.chained_int.data_frames);
+                if (list_empty(data_frames) == 1){ /* if buffer already stores some data clean up it */
+                    list_iterator_start(data_frames);
+                    while(list_iterator_hasnext(data_frames)){
+                        wr_data_frame_t * tmp  = list_iterator_next(data_frames);
+                        free(tmp->data);
+                    }
+                    list_iterator_stop(data_frames);
+                    list_destroy(data_frames);
+                }
+                list_init(data_frames); 
+                list_iterator_start(state->data_frames);
+                while (list_iterator_hasnext(state->data_frames)){
+                    /* store all data frames */
+                    wr_data_frame_t * tmp  = list_iterator_next(state->data_frames);
+                    wr_data_frame_t * frame = calloc(1, sizeof(wr_data_frame_t));
+                    frame->data = calloc(tmp->size, sizeof(uint8_t));
+                    memcpy(frame->data, tmp->data, tmp->size);
+                    frame->length_in_ms = tmp->length_in_ms;
+                    frame->size = tmp->size;
+                    list_append(data_frames, frame);
+                }
+                list_iterator_stop(state->data_frames);
+            }
+        }
+    } else {}
 
     if (netem->delay_model == NONE_DELAY){
         state->delay = 0;
