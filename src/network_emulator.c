@@ -114,7 +114,7 @@ int wr_network_emulator_next(wr_network_emulator_t * netem, wr_packet_state_t * 
         }
         state->lost = netem->loss.chained.__is_lost;
         netem->loss.chained.__position = (++netem->loss.chained.__position) % netem->loss.chained.chain_size;
-        /* printf("%c", state->lost  ? '+' : '-'); */
+        /* printf("%c", state->lost  ? '-' : '+'); */
     } else if (netem->loss_model == CHAINED_INT_LOSS ){
         
         state->lost = 0;
