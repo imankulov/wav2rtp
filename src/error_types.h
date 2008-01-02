@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * 
  * Copyright (c) 2007, R.Imankulov
@@ -33,8 +33,14 @@
  *
  */
 #ifndef __ERROR_TYPES_H
-#define __ERROR_TYPES_H 1
+#define __ERROR_TYPES_H
 
+/** @defgroup error_types Error types 
+ *  In this section are defined various errors types and functions to work with.
+ *  @{
+ */
+
+/** DEPRECATED! */
 #define CANNOT_RENDER_WAVFILE (1)
 #define CODEC_NOT_RECOGNIZED (2)
 #define CANNOT_INITIALIZE_CODEC (4)
@@ -42,9 +48,27 @@
 #define OUTPUT_NOT_RECOGNIZED (16)
 #define CANNOT_PARSE_CONFIG (32)
 
+/**
+ * Errorcodes which observer's "notify" method returns
+ */
+typedef enum __wr_errcode {
+    WR_OK, 
+    WR_WARN, 
+    WR_FATAL, 
+} wr_errorcode_t;
+
+
 /** String which contains error descritions when something goes wrong  */
 char wr_error[2048];
+
+/**
+ * Set error description
+ */
 #define wr_set_error(x) bzero(wr_error,1024);strncpy(wr_error,x,1023);
+
+/**
+ * Print error description
+ */
 #define wr_print_error() printf("%s\n",wr_error);
 
 #endif

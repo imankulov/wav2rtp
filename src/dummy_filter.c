@@ -32,31 +32,23 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef __WR_MISC_H
-#define __WR_MISC_H
-
-/** @defgroup misc miscellaneous
- *  Miscellaneous helper functions 
- *  @{
- */
+#include "dummy_filter.h"
+#include "options.h"
 
 
-/**
- * Dump data to stdout in hex format (for debug)
- */
-void wr_dump(void * data, int size);
+wr_errorcode_t wr_dummy_filter_notify(wr_rtp_filter_t * fliter, wr_event_type_t event, wr_rtp_packet_t * packet)
+{
+    switch(event) {
+        case TRANSMISSION_START:
+            printf("transmission start\n");
+            break;
+        case NEW_PACKET:
+            printf("got data\n"); 
+            break;
+        case TRANSMISSION_END:
+            printf("transmission end\n");
+            break;
+    }
+    return WR_OK;
 
-/**
- * Increment given timeval to given number of microseconds (usec)
- */
-void timeval_increment(struct timeval * tv, int us);
-
-
-/**
- * Copy values of the time from src to dst
- */
-void timeval_copy(struct timeval * dst, const struct timeval * src);
-
-#endif
-
-/** @} */
+}

@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * 
  * Copyright (c) 2007, R.Imankulov
@@ -33,7 +33,7 @@
  *
  */
 #ifndef __WAV2RTP_H
-#define __WAV2RTP_H 1
+#define __WAV2RTP_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -62,13 +62,6 @@ typedef struct __codec{
     void (*destroy)(struct __codec * );
 
 } wr_codec_t;
-
-/**  data frame object */
-typedef struct __wr_data_frame {
-    int length_in_ms;              /**< size of RTP data in ms */
-    size_t size;                   /**< size of data */
-    uint8_t * data;                /**< pointer to the data */
-} wr_data_frame_t;
 
 
 /** Output abstraction object (for pcap, RTP output or smth. else, currently implemented pcap files only) */

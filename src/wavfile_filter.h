@@ -32,31 +32,17 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef __WR_MISC_H
-#define __WR_MISC_H
-
-/** @defgroup misc miscellaneous
- *  Miscellaneous helper functions 
+#ifndef WAVFILE_FILTER_H
+#define WAVFILE_FILTER_H
+#include "rtpapi.h"
+/** @defgroup wavfile_filter wavfile filter method definitions
  *  @{
  */
 
-
 /**
- * Dump data to stdout in hex format (for debug)
+ * Start read data from file and send them via "notification interface"
+ * (use #wr_options)
  */
-void wr_dump(void * data, int size);
-
-/**
- * Increment given timeval to given number of microseconds (usec)
- */
-void timeval_increment(struct timeval * tv, int us);
-
-
-/**
- * Copy values of the time from src to dst
- */
-void timeval_copy(struct timeval * dst, const struct timeval * src);
-
-#endif
-
+wr_errorcode_t wr_wavfile_filter_start(wr_rtp_filter_t * filter);
 /** @} */
+#endif

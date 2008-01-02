@@ -32,31 +32,27 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef __WR_MISC_H
-#define __WR_MISC_H
+#ifndef LOG_FILTER_H
+#define LOG_FILTER_H
+#include "rtpapi.h"
 
-/** @defgroup misc miscellaneous
- *  Miscellaneous helper functions 
- *  @{
+/** @defgroup log_filter log output filter
+ * This filter writes information about inout data to stdout
+ * @{
  */
 
+/** 
+ * Structure to store internal state of the log filter
+ */
+typedef struct __wr_log_filter_state {
+    struct timeval prev_timestamp;
+} wr_log_filter_state_t;
 
 /**
- * Dump data to stdout in hex format (for debug)
+ * Log data from input stream and pass input stream to its output unchanged.
+ * This method is invoked when filter is notified.
  */
-void wr_dump(void * data, int size);
-
-/**
- * Increment given timeval to given number of microseconds (usec)
- */
-void timeval_increment(struct timeval * tv, int us);
-
-
-/**
- * Copy values of the time from src to dst
- */
-void timeval_copy(struct timeval * dst, const struct timeval * src);
+wr_errorcode_t wr_log_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet);
+/** @} */
 
 #endif
-
-/** @} */

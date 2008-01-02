@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * 
  * Copyright (c) 2007, R.Imankulov
@@ -33,7 +33,7 @@
  *
  */
 #ifndef __DUMMY_CODEC_H
-#define __DUMMY_CODEC_H 1
+#define __DUMMY_CODEC_H
 #include "wav2rtp.h"
 
 // Dummy codec helpers

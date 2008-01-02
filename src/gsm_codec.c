@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * 
  * Copyright (c) 2007, R.Imankulov

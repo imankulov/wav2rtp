@@ -32,31 +32,17 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef __WR_MISC_H
-#define __WR_MISC_H
-
-/** @defgroup misc miscellaneous
- *  Miscellaneous helper functions 
+#ifndef DUMMY_FILTER_H
+#define DUMMY_FILTER_H
+#include "rtpapi.h"
+/** @defgroup dummy_filter dummy filter method definitions
  *  @{
  */
 
-
 /**
- * Dump data to stdout in hex format (for debug)
+ * Print to stdout about sent data. 
+ * This method is invoked when dummy filtr is notified
  */
-void wr_dump(void * data, int size);
-
-/**
- * Increment given timeval to given number of microseconds (usec)
- */
-void timeval_increment(struct timeval * tv, int us);
-
-
-/**
- * Copy values of the time from src to dst
- */
-void timeval_copy(struct timeval * dst, const struct timeval * src);
-
-#endif
-
+wr_errorcode_t wr_dummy_filter_notify(wr_rtp_filter_t * fliter, wr_event_type_t event, wr_rtp_packet_t * packet);
 /** @} */
+#endif

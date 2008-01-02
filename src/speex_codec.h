@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * 
  * Copyright (c) 2007, R.Imankulov
@@ -33,7 +33,7 @@
  *
  */
 #ifndef __SPEEX_CODEC_H
-#define __SPEEX_CODEC_H 1
+#define __SPEEX_CODEC_H
 
 #include <speex/speex.h>
 #include "wav2rtp.h"

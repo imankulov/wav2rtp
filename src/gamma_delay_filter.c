@@ -32,31 +32,37 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef __WR_MISC_H
-#define __WR_MISC_H
-
-/** @defgroup misc miscellaneous
- *  Miscellaneous helper functions 
- *  @{
- */
+#include "contrib/ranlib/ranlib.h"
+#include "gamma_delay_filter.h"
 
 
-/**
- * Dump data to stdout in hex format (for debug)
- */
-void wr_dump(void * data, int size);
 
-/**
- * Increment given timeval to given number of microseconds (usec)
- */
-void timeval_increment(struct timeval * tv, int us);
+wr_errorcode_t wr_gamma_delay_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet)
+{
+    switch(event){
 
-
-/**
- * Copy values of the time from src to dst
- */
-void timeval_copy(struct timeval * dst, const struct timeval * src);
-
-#endif
-
-/** @} */
+        case TRANSMISSION_START:  {
+            wr_gamma_delay_filter_state_t * state = calloc(1, sizeof(*state));
+            state->shape = iniparser_getpositiveint(wr_options.output_options, "gamma_delay:shape", 0);
+            state->scale = iniparser_getpositiveint(wr_options.output_options, "gamma_delay:scale", 0);
+            setall(random(), random());
+            filter->state = (void*)state;
+            wr_rtp_filter_notify_observers(filter, event, packet);
+            return WR_OK;
+        }
+        case NEW_PACKET: {
+            wr_gamma_delay_filter_state_t * state = (wr_gamma_delay_filter_state_t * ) (filter->state);
+            int delay = (int)gengam(1/(float)state->scale, state->shape);
+            wr_rtp_packet_t new_packet;
+            wr_rtp_packet_copy(&new_packet, packet);
+            timeval_increment(&new_packet.lowlevel_timestamp, delay);
+            wr_rtp_filter_notify_observers(filter, event, &new_packet);
+            return WR_OK;
+        }
+        case TRANSMISSION_END: {
+            free(filter->state);
+            wr_rtp_filter_notify_observers(filter, event, packet);
+            return WR_OK;
+        }
+    }  
+}

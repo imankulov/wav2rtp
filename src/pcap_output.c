@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * 
  * Copyright (c) 2007, R.Imankulov
@@ -221,7 +221,7 @@ int wr_pcap_write(void * state, list_t * data_frames, wr_codec_t * codec, wr_net
         wr_data_frame_t *  current_data;
         vec_t iphdr_vec[] = { /* to count an IP checksum */
             {
-                ptr: (guint8*) &(s->ip_header),
+                ptr: &(s->ip_header),
                 len: sizeof(s->ip_header),
             },
         };

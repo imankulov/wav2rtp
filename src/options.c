@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * 
  * Copyright (c) 2007, R.Imankulov
@@ -33,7 +33,6 @@
  *
  */
 #include "options.h"
-#include "error_types.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -64,7 +63,7 @@ void print_usage()
 }
 
 
-int get_options(const int argc, char * const argv[])
+wr_errorcode_t get_options(const int argc, char * const argv[])
 {
     int c;
     extern char *optarg;
@@ -85,13 +84,13 @@ int get_options(const int argc, char * const argv[])
     wr_options.codecs_options = iniparser_new(CONFDIR "/codecs.conf");
     if (!wr_options.codecs_options){
         wr_set_error("Cannot load or parse file with codec options: " CONFDIR "/codecs.conf");
-        return CANNOT_PARSE_CONFIG; 
+        return WR_FATAL; 
     }
 
     wr_options.output_options = iniparser_new(CONFDIR "/output.conf");
     if (!wr_options.codecs_options){
         wr_set_error("Cannot load or parse file with output options: " CONFDIR "/output.conf");
-        return CANNOT_PARSE_CONFIG; 
+        return WR_FATAL; 
     }
 
     while(1){
@@ -126,9 +125,18 @@ int get_options(const int argc, char * const argv[])
     }
     if (hlp || !(cset && fset)){
         print_usage();
-        return 1;
+        wr_set_error("not enought input arguments");
+        return WR_FATAL;
     }
-    return 0;
+    if (!wr_options.output_filename){
+        wr_set_error("output filename is not set");
+        return WR_FATAL;
+    }
+    if (strncmp(wr_options.output_filename, wr_options.filename, 1024) == 0){
+        wr_set_error("output filename is the same that input filename");
+        return WR_FATAL;
+    }       
+    return WR_OK;
 }
 
 
@@ -139,7 +147,7 @@ int get_options(const int argc, char * const argv[])
  * @pplist: a pointer to the first object wr_codec_list_t or pointer to NULL if nothing is found;
  * @return: 0 if allocation goes sucessfully or !=0
  */
-int get_codec_list(char * string, list_t ** pcodec_list)
+wr_errorcode_t get_codec_list(char * string, list_t ** pcodec_list)
 {
     list_t * codec_list;   
     {
@@ -153,7 +161,7 @@ int get_codec_list(char * string, list_t ** pcodec_list)
 
         if (strlen(string) > 1023){
             wr_set_error("size of list of codec is larger than 1023 symbols"); 
-            return CANNOT_INITIALIZE_CODEC;        
+            return WR_FATAL;        
         }       
         bzero(str, sizeof(str));
         strncpy(str, string, sizeof(str)-2);
@@ -201,11 +209,11 @@ int get_codec_list(char * string, list_t ** pcodec_list)
             token = strtok_r(NULL, ",", &lasts);
         }  
         (*pcodec_list) = codec_list;
-        return 0;
+        return WR_OK;
 
         cannot_initialize_codec:
             list_destroy(codec_list);
-            return CANNOT_INITIALIZE_CODEC;
+            return WR_FATAL;
     }
 }
 

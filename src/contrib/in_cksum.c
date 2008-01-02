@@ -50,24 +50,24 @@
 int
 in_cksum(const vec_t *vec, int veclen)
 {
-	register const guint16 *w;
+	register const unsigned short *w;
 	register int sum = 0;
 	register int mlen = 0;
 	int byte_swapped = 0;
 
 	union {
-		guint8	c[2];
-		guint16	s;
+		unsigned char	c[2];
+		unsigned short	s;
 	} s_util;
 	union {
-		guint16 s[2];
-		guint32	l;
+		unsigned short s[2];
+		unsigned long	l;
 	} l_util;
 
 	for (; veclen != 0; vec++, veclen--) {
 		if (vec->len == 0)
 			continue;
-		w = (const guint16 *)vec->ptr;
+		w = (const unsigned short *)vec->ptr;
 		if (mlen == -1) {
 			/*
 			 * The first byte of this chunk is the continuation
@@ -77,9 +77,9 @@ in_cksum(const vec_t *vec, int veclen)
 			 * s_util.c[0] is already saved when scanning previous
 			 * chunk.
 			 */
-			s_util.c[1] = *(const guint8 *)w;
+			s_util.c[1] = *(const unsigned char *)w;
 			sum += s_util.s;
-			w = (const guint16 *)((const guint8 *)w + 1);
+			w = (const unsigned short *)((const unsigned char *)w + 1);
 			mlen = vec->len - 1;
 		} else
 			mlen = vec->len;
@@ -89,8 +89,8 @@ in_cksum(const vec_t *vec, int veclen)
 		if ((1 & (unsigned long) w) && (mlen > 0)) {
 			REDUCE;
 			sum <<= 8;
-			s_util.c[0] = *(const guint8 *)w;
-			w = (const guint16 *)((const guint8 *)w + 1);
+			s_util.c[0] = *(const unsigned char *)w;
+			w = (const unsigned short *)((const unsigned char *)w + 1);
 			mlen--;
 			byte_swapped = 1;
 		}
@@ -122,13 +122,13 @@ in_cksum(const vec_t *vec, int veclen)
 			sum <<= 8;
 			byte_swapped = 0;
 			if (mlen == -1) {
-				s_util.c[1] = *(const guint8 *)w;
+				s_util.c[1] = *(const unsigned char *)w;
 				sum += s_util.s;
 				mlen = 0;
 			} else
 				mlen = -1;
 		} else if (mlen == -1)
-			s_util.c[0] = *(const guint8 *)w;
+			s_util.c[0] = *(const unsigned char *)w;
 	}
 	if (mlen == -1) {
 		/* The last mbuf has odd # of bytes. Follow the
@@ -147,10 +147,10 @@ in_cksum(const vec_t *vec, int veclen)
  * that the checksum covers (including the checksum itself), compute
  * what the checksum field *should* have been.
  */
-guint16
-in_cksum_shouldbe(guint16 sum, guint16 computed_sum)
+unsigned short
+in_cksum_shouldbe(unsigned short sum, unsigned short computed_sum)
 {
-	guint32 shouldbe;
+	unsigned long shouldbe;
 
 	/*
 	 * The value that should have gone into the checksum field

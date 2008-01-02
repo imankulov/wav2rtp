@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * 
  * Copyright (c) 2007, R.Imankulov
@@ -33,7 +33,7 @@
  *
  */
 #ifndef __OPTIONS_H
-#define __OPTIONS_H 1
+#define __OPTIONS_H
 
 #ifdef HAVE_CONFIG_H
     #include <config.h>
@@ -41,10 +41,11 @@
 
 #include "contrib/iniparser.h"
 #include "contrib/simclist.h"
+#include "error_types.h"
 #include "wav2rtp.h"
 
 /** Options passed from command-line arguments */
-typedef struct __options {
+typedef struct __wr_options {
 
     char * filename;    
 
@@ -61,8 +62,8 @@ typedef struct __options {
 /** global application options */
 wr_options_t wr_options;
 
-int get_options(const int argc, char * const argv[]);
-int get_codec_list(char *, list_t **);
+wr_errorcode_t get_options(const int argc, char * const argv[]);
+wr_errorcode_t get_codec_list(char *, list_t **);
 void free_codec_list(list_t *);
 void print_usage(void);
 #endif

@@ -32,31 +32,37 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef __WR_MISC_H
-#define __WR_MISC_H
+#ifndef GAMMA_DELAY_FILTER_H
+#define GAMMA_DELAY_FILTER_H
+#include "rtpapi.h"
 
-/** @defgroup misc miscellaneous
- *  Miscellaneous helper functions 
+/** @defgroup gamma_delay gamma delay filter
+ * This filter emulates independent delays of the packets using gamma 
+ * distribution as model.
+ * It uses section [gamma_delay] of the configuration file "output.ini"
+ * There is two used options:
+ *
+ *    shape = integer
+ *    scale = integer
+ *
  *  @{
  */
 
 
-/**
- * Dump data to stdout in hex format (for debug)
+/* 
+ * Structure to store internal state of the delay filter
  */
-void wr_dump(void * data, int size);
+
+typedef struct __wr_gamma_delay_filter_state {
+    int shape;
+    int scale;
+} wr_gamma_delay_filter_state_t;
 
 /**
- * Increment given timeval to given number of microseconds (usec)
+ * Loss random data from input stream and pass result stream to its output.
+ * This method is invoked when filter is notified.
  */
-void timeval_increment(struct timeval * tv, int us);
-
-
-/**
- * Copy values of the time from src to dst
- */
-void timeval_copy(struct timeval * dst, const struct timeval * src);
+wr_errorcode_t wr_gamma_delay_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet);
+/** @} */
 
 #endif
-
-/** @} */

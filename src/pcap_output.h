@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * 
  * Copyright (c) 2007, R.Imankulov
@@ -33,7 +33,7 @@
  *
  */
 #ifndef PCAP_OUTPUT_H
-#define PCAP_OUTPUT_H 1
+#define PCAP_OUTPUT_H
 
 #include "wav2rtp.h"
 #include "error_types.h"

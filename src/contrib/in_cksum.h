@@ -5,28 +5,15 @@
  */
 
 #ifndef CONTRIB_IN_CKSUM_H
-#define CONTRIB_IN_CKSUM_H 1
-
-
-#ifndef guint8
-    #define guint8 unsigned char
-#endif
-
-#ifndef guint16
-    #define guint16 unsigned short
-#endif
-
-#ifndef guint32
-    #define guint32 unsigned long
-#endif
+#define CONTRIB_IN_CKSUM_H
 
 typedef struct {
-	const guint8 *ptr;
+	const unsigned char *ptr;
 	int	len;
 } vec_t;
 
 int in_cksum(const vec_t *vec, int veclen);
 
-guint16 in_cksum_shouldbe(guint16 sum, guint16 computed_sum);
+unsigned short in_cksum_shouldbe(unsigned short sum, unsigned short computed_sum);
 
 #endif

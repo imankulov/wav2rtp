@@ -1,4 +1,4 @@
-/**
+/*
  * $Id$
  * 
  * Copyright (c) 2007, R.Imankulov
@@ -36,7 +36,11 @@
 
 
 #include <stdio.h>
+#include <sys/time.h>
 #include "misc.h"
+
+
+
 void wr_dump(void * data, int size)
 {
     int i;
@@ -55,3 +59,21 @@ void wr_dump(void * data, int size)
     printf("\n--------------------------------------------------\n");
 }
 
+
+
+void timeval_increment(struct timeval * tv, int ms)
+{
+    tv->tv_usec += (ms % 1000000);    
+    tv->tv_sec += (ms / 1000000);
+
+    tv->tv_sec += tv->tv_usec / 1000000;
+    tv->tv_usec = tv->tv_usec % 1000000;
+}
+
+
+
+void timeval_copy(struct timeval * dst, const struct timeval * src)
+{
+    dst->tv_sec = src->tv_sec;
+    dst->tv_usec = src->tv_usec;
+}

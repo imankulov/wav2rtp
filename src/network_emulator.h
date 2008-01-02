@@ -1,5 +1,5 @@
 #ifndef NETWORK_EMULATOR_H
-#define NETWORK_EMULATOR_H 1
+#define NETWORK_EMULATOR_H
 
 #include "contrib/simclist.h"
 

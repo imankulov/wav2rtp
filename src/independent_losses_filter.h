@@ -32,31 +32,34 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef __WR_MISC_H
-#define __WR_MISC_H
+#ifndef INDEPENDENT_LOSSES_FILTER_H
+#define INDEPENDENT_LOSSES_FILTER_H
+#include "rtpapi.h"
 
-/** @defgroup misc miscellaneous
- *  Miscellaneous helper functions 
+/** @defgroup independent_losses independent losses filter
+ * This filter emulates independent random losses.
+ * It uses section [independent_losses] of the configuration file "output.ini"
+ * There is two used options
+ * initial_seed =  integer, which use as initial seed to random numbers generator, 
+ * initial_seed may be equals to 0 and that means "use localtime as initial value"
+ * loss_rate = float from 0 to 1
  *  @{
  */
 
 
-/**
- * Dump data to stdout in hex format (for debug)
+/** 
+ * Structure to store internal state of the pcap output filter
  */
-void wr_dump(void * data, int size);
+typedef struct __wr_independent_losses_filter_state {
+    char random_state [256];
+    double loss_rate;
+} wr_independent_losses_filter_state_t;
 
 /**
- * Increment given timeval to given number of microseconds (usec)
+ * Loss random data from input stream and pass result stream to its output.
+ * This method is invoked when filter is notified.
  */
-void timeval_increment(struct timeval * tv, int us);
-
-
-/**
- * Copy values of the time from src to dst
- */
-void timeval_copy(struct timeval * dst, const struct timeval * src);
+wr_errorcode_t wr_independent_losses_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet);
+/** @} */
 
 #endif
-
-/** @} */
