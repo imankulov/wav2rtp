@@ -38,7 +38,6 @@
 #include <netinet/udp.h>
 #include <netinet/ether.h> /* ether_aton_r */
 #include <arpa/inet.h>
-#include <ortp/rtp.h>
 #include <pcap.h>
 
 #include "contrib/in_cksum.h"
@@ -102,7 +101,7 @@ wr_errorcode_t __init_udp_header(struct udphdr * udp_header)
     return WR_OK;
 }
 
-wr_errorcode_t __init_rtp_header(rtp_header_t * rtp_header)
+wr_errorcode_t __init_rtp_header(wr_rtp_header_t * rtp_header)
 {
     bzero(rtp_header, sizeof(*rtp_header));
     rtp_header->version = 2;
@@ -157,7 +156,7 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
                 struct ether_header e_header;
                 struct iphdr ip_header;
                 struct udphdr udp_header;
-                rtp_header_t rtp_header;
+                wr_rtp_header_t rtp_header;
                 vec_t iphdr_vec[] = { /* to count an IP checksum */
                     {
                         ptr: (unsigned char *)&ip_header,

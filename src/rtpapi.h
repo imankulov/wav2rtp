@@ -39,6 +39,7 @@
 #include <sys/time.h>
 #include "error_types.h"
 #include "options.h"
+#include "config.h"
 
 #define MAX_OBSERVERS 256
 
@@ -47,6 +48,36 @@
  *  This group describes RTP packets datastructure and API to use it
  *  @{
  */
+
+/**
+ * RTP header given from ortp 
+ */
+
+typedef struct __wr_rtp_header
+{
+#ifdef WORDS_BIGENDIAN
+	uint16_t version:2;
+	uint16_t padbit:1;
+	uint16_t extbit:1;
+	uint16_t cc:4;
+	uint16_t markbit:1;
+	uint16_t paytype:7;
+#else
+	uint16_t cc:4;
+	uint16_t extbit:1;
+	uint16_t padbit:1;
+	uint16_t version:2;
+	uint16_t paytype:7;
+	uint16_t markbit:1;
+#endif
+	uint16_t seq_number;
+	uint32_t timestamp;
+	uint32_t ssrc;
+	uint32_t csrc[16];
+} wr_rtp_header_t;
+
+
+
 
 /**
  * RTP data packet which contains link to the set of rtp data frames 

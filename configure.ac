@@ -13,10 +13,6 @@ AC_PROG_CC
 
 # Checks for libraries.
 AC_CHECK_LIB([gsm], [gsm_create])
-
-# ortp is needed only in header files
-AC_CHECK_LIB([ortp], [rtp_session_new])
-
 AC_CHECK_LIB([sndfile], [sf_open])
 AC_CHECK_LIB([speex], [speex_encoder_init])
 
@@ -29,6 +25,7 @@ AC_C_CONST
 AC_HEADER_TIME
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
+AC_C_BIGENDIAN
 
 # Checks for library functions.
 # AC_FUNC_MALLOC
