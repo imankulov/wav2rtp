@@ -46,16 +46,15 @@ void print_usage()
     printf( "\n"
             "This tool used to convert data from .wav to rtp packets which can be sent over network interface or stored into pcap file\n"
             "\n"
-            "USAGE: wav2rtp [-f|--from-file] filename.wav [-c|--codec] codec [ other options ... ]\n"
+            "USAGE: wav2rtp [-f|--from-file] file.wav [-t|--to-file] file.pcap [-c|--codec] codec [ other options ... ]\n"
             "  -f, --from-file          \tFilename from which sound (speech) data will be readed\n"
-            "  -c, --codec-list         \tComma separated list of codecs (without spaces), which will be used to encode .wav file.\n"
+            "  -t, --to-file            \tOutput file\n"
+            "  -c, --codec-list         \tComma separated list of codecs (without spaces), which will be used to encode .wav file\n"
+            "  -o, --output-option      \tOutput option which redefine " CONFDIR "/output.conf. Recorded in form \"section:key=value\"\n"
+            "  -O, --codecs-option       \tCodec option which redefine " CONFDIR "/codecs.conf. Recorded in the form \"section:key=value\"\n"
+            "  -s, --print-sipp-scenario\tPrint two essential parts of SIPp scenario: SDP data packet and XML-string which force to play pcap audio\n"
             "\n"
-            "Other options.\n"
-            "\n"
-            "  -t, --to-file            \tOutput file.\n"
-            "  -s, --print-sipp-scenario\tPrint two essential parts of SIPp scenario: SDP data packet and XML-string which force to play pcap audio.\n"
-            "\n"
-            "Codecs options (such as payload type and other) may be defined in the config file: " CONFDIR "/codec.conf\n"
+            "Codecs options (such as payload type and other) may be defined in the config file: " CONFDIR "/codecs.conf\n"
             "\n"
             "EXAMPLE: \n"
             "  wav2rtp -f test.wav -c g711u,gsm -t test.pcap\n"
@@ -78,10 +77,14 @@ wr_errorcode_t get_options(const int argc, char * const argv[])
     extern int optind, optopt;
     int hlp = 0, cset = 0, fset=0;
     char * chr; 
+    char * codec_list = NULL;
+    int need_define_codec_list = 0;
     static struct option long_options[] = {
         {"help", 0, NULL, 'h', }, 
         {"from-file", 1, NULL, 'f', }, 
         {"codec-list", 1, NULL, 'c', }, 
+        {"output-option", 1, NULL, 'o', },
+        {"codecs-option", 1, NULL, 'O', },
         {"to-file", 1, NULL, 't', }, 
         {"print-sipp-scenario", 0, NULL, 's', }, 
         {0, 0, 0, 0},
@@ -103,7 +106,7 @@ wr_errorcode_t get_options(const int argc, char * const argv[])
 
     while(1){
         int option_index = 0;
-        c = getopt_long(argc, argv, "hH:f:c:o:t:", long_options, &option_index);
+        c = getopt_long(argc, argv, "hH:f:c:o:O:t:", long_options, &option_index);
         if (c == -1)
             break;
         switch(c){
@@ -115,8 +118,9 @@ wr_errorcode_t get_options(const int argc, char * const argv[])
                 fset ++;
                 break;
             case 'c':
-                if (get_codec_list(optarg, &wr_options.codec_list) == 0)
-                    cset ++;
+                /* Codecs have to be initialized after all */
+                codec_list = strdup(optarg);
+                need_define_codec_list = 1;
                 break;
             case 't':
                 wr_options.output_filename = optarg;
@@ -124,12 +128,25 @@ wr_errorcode_t get_options(const int argc, char * const argv[])
             case 's':
                 wr_options.print_sipp_scenario = 1;
                 break;
+            case 'o':
+                if (define_option(optarg, wr_options.output_options) != WR_OK)
+                    hlp++;
+                break;
+            case 'O':
+                if (define_option(optarg, wr_options.codecs_options) != WR_OK)
+                    hlp++;
+                break;
             default:
                 hlp++;
                 break;
        
         }
 
+    }
+    if (need_define_codec_list){
+        if (get_codec_list(codec_list, &wr_options.codec_list) == 0)
+            cset ++;
+        free(codec_list);
     }
     if (hlp || !(cset && fset)){
         print_usage();
@@ -197,4 +214,24 @@ wr_errorcode_t get_codec_list(char * string, list_t ** pcodec_list)
 void free_codec_list(list_t * list)
 {
     free(list);
+}
+
+
+wr_errorcode_t define_option(const char * option, dictionary * d)
+{
+    char * opt = strdup(option);
+    char * c = opt;
+    while(*c){
+        if (*c == '='){
+            *c = '\0';
+            c++;
+            iniparser_setstr(d, opt, c);
+            free(opt);
+            return WR_OK;
+        }
+        c++;
+    }
+    free(opt);
+    wr_set_error("Delimiter \"=\" not found in option");
+    return WR_FATAL;
 }

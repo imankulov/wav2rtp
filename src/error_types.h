@@ -51,7 +51,7 @@
 /**
  * Errorcodes which observer's "notify" method returns
  */
-typedef enum __wr_errcode {
+typedef enum __wr_errorcode {
     WR_OK, 
     WR_WARN, 
     WR_FATAL, 
