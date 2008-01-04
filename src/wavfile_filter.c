@@ -34,6 +34,7 @@
  */
 #include <sndfile.h> 
 #include "rtpapi.h"
+#include "codecapi.h"
 #include "wavfile_filter.h"
 #include "options.h"
 #include "misc.h"

@@ -36,7 +36,7 @@
 #define __GSM_CODEC_H
 #include <gsm/gsm.h>
 
-#include "wav2rtp.h"
+#include "codecapi.h"
 
 typedef struct {
     gsm handle;

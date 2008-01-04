@@ -35,7 +35,7 @@
 #ifndef PCAP_OUTPUT_H
 #define PCAP_OUTPUT_H
 
-#include "wav2rtp.h"
+#include "rtpapi.h"
 #include "error_types.h"
 #include <net/ethernet.h>
 #include <netinet/ip.h>

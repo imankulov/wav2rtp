@@ -32,21 +32,20 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef __WAV2RTP_H
-#define __WAV2RTP_H
+#ifndef __CODECAPI_H
+#define __CODECAPI_H
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdint.h>
 #include "network_emulator.h"
 #include "contrib/simclist.h"
 
-/** basic types */
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
+
 
 /** Codec abstraction object */
-typedef struct __codec{
+typedef struct __wr_codec{
     
     /* Members */
     char * name;        /**< name of the codec as in SDP packet */
@@ -59,28 +58,9 @@ typedef struct __codec{
     int (*get_input_buffer_size)(void *);
     int (*get_output_buffer_size)(void *);
     int (*encode)(void *, const short * , char *);
-    void (*destroy)(struct __codec * );
+    struct __wr_codec* (*init)(struct __wr_codec *);
+    void (*destroy)(struct __wr_codec * );
 
 } wr_codec_t;
 
-
-/** Output abstraction object (for pcap, RTP output or smth. else, currently implemented pcap files only) */
-typedef struct __output {
-
-    /* Members */    
-
-    void * state; /**< this store internal state of the output object */
-
-
-    /* Methods */
-    /**
-     * Write RTP data into UDP packet and store it into pcap file
-     * @param state internal state of output object (i.e. wr_pcap_state_t)
-     * @param data list of objects wr_data_frame_t
-     * @param codec object which were used to convert data frames 
-     * @netem 
-     */
-    int(*write)(void * state, list_t * data, wr_codec_t * codec, wr_network_emulator_t * netem);
-    void (*destroy)(struct __output * );    /**< Pointer to function which destroy this  object */
-} wr_output_t;
 #endif

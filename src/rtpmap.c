@@ -32,38 +32,51 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef __SPEEX_CODEC_H
-#define __SPEEX_CODEC_H
+#include "rtpmap.h"
 
-#include <speex/speex.h>
-#include "codecapi.h"
 
-/** Speex codec object */
-typedef struct {
 
-    /* Speex state */
-    SpeexBits bits;     /**< speex bit-packing struct  */
-    void * enc_state;   /**< speex encoder state */
+wr_codec_t rtpmap[] = {
+    {"DUMMY", "Codec for testing and demo purposes", NULL, 111, 8000, 
+            dummy_get_input_buffer_size, dummy_get_output_buffer_size, dummy_encode, dummy_init_codec, dummy_destroy_codec}, 
+    {"GSM", "GSM 06.10 full-rate codec", NULL, 3, 8000, 
+            wr_gsm_get_input_buffer_size, wr_gsm_get_output_buffer_size, wr_gsm_encode, gsm_init_codec, wr_gsm_destroy_codec}, 
+    {"speex", "Speex narrowband mode codec", NULL, 96, 8000, 
+            wr_speex_get_input_buffer_size, wr_speex_get_output_buffer_size, wr_speex_encode, wr_speex_init_codec, wr_speex_destroy_codec}, 
+    {"PCMU", "ITU-T G.711 codec with u-law compression", NULL, 0, 8000, 
+            wr_g711u_get_input_buffer_size, wr_g711u_get_output_buffer_size, wr_g711u_encode, g711u_init_codec, wr_g711u_destroy_codec}, 
 
-    /* Speex options */
-    int quality;        /**< speex quality: 0<=q<=10 */
-    int complexity;     /**< speex encoder complexity */
-    int bitrate;        /**< bitrate */
-    int abr_enabled;    /**< average bitrate */
-    int vad_enabled;    /**< voice activity detection */
-    int dtx_enabled;    /**< discontinious transmission */
-    int vbr_enabled;    /**< boolean value, true if VBR (vraiable bit-rate) should be enabled */
-    float vbr_quality;  /**< VBR quality: 0<=q<=10 */
-    #ifdef SPEEX_SET_VBR_MAX_BITRATE
-    int vbr_max_bitrate;/**< max bitrate with VBR enabled */
-    #endif
-    
-} speex_state;
+    {NULL, NULL, NULL, 0, 0,
+            NULL, NULL, NULL, NULL, NULL}
+};
 
-wr_codec_t *  wr_speex_init_codec(wr_codec_t * );
-void wr_speex_destroy_codec(wr_codec_t *);
-int wr_speex_get_input_buffer_size(void * state);
-int wr_speex_get_output_buffer_size(void * state);
-int wr_speex_encode(void * state, const short * input, char * output); 
 
-#endif
+
+wr_codec_t * get_codec_by_name(const char * name)
+{
+    int i=0;
+    wr_codec_t * pcodec;
+    while((pcodec = &rtpmap[i])->name){
+        if (strncmp(pcodec->name, name, WR_MAX_CODEC_NAME_SIZE) == 0 ){
+            return pcodec;
+        }
+        i++;
+    }
+    return NULL;
+}
+
+
+
+wr_codec_t * get_codec_by_pt(int payload_type)
+{
+    int i=0;
+    wr_codec_t * pcodec;
+    while((pcodec = &rtpmap[i])->name){
+        if (pcodec->payload_type == payload_type){
+            return pcodec;
+        }
+        i++;
+    }
+    return NULL;
+}
+

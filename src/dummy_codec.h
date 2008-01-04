@@ -34,7 +34,7 @@
  */
 #ifndef __DUMMY_CODEC_H
 #define __DUMMY_CODEC_H
-#include "wav2rtp.h"
+#include "codecapi.h"
 
 // Dummy codec helpers
 typedef struct {

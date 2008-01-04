@@ -33,19 +33,22 @@
  *
  */
 #include "options.h"
+#include "rtpmap.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
 
+
 void print_usage()
 {
+    int i = 0;
     printf( "\n"
             "This tool used to convert data from .wav to rtp packets which can be sent over network interface or stored into pcap file\n"
             "\n"
             "USAGE: wav2rtp [-f|--from-file] filename.wav [-c|--codec] codec [ other options ... ]\n"
             "  -f, --from-file          \tFilename from which sound (speech) data will be readed\n"
-            "  -c, --codec-list         \tComma separated list of codec types (without spaces), which will be used to encode .wav file. You can choose one of: speex, dummy, gsm, g711u\n"
+            "  -c, --codec-list         \tComma separated list of codecs (without spaces), which will be used to encode .wav file.\n"
             "\n"
             "Other options.\n"
             "\n"
@@ -60,6 +63,11 @@ void print_usage()
             "This read file \"test.wav\" TWO TIMES, encode it first with G.711 then with GSM 06.10 and store data in pcap file \"test.pcap\"\n"
             "\n"
     );
+    printf("CODEC LIST:\n");
+    while(rtpmap[i].name){
+        printf("%s\t%s\n", rtpmap[i].name, rtpmap[i].description); i++;
+    }
+    printf("\n");
 }
 
 
@@ -168,61 +176,25 @@ wr_errorcode_t get_codec_list(char * string, list_t ** pcodec_list)
 
         token = strtok_r(str, ",", &lasts);
         while(token){
-            wr_codec_t codec;
-            wr_codec_t * pcodec;
-
-            /* Try to initialize codec*/
-            bzero(&codec, sizeof(wr_codec_t));
-            if (strncmp(token, "speex", 6) == 0){
-                if (!wr_speex_init_codec(&codec)){
-                    wr_set_error("Cannot initialize codec speex");
-                    goto cannot_initialize_codec;
-                }
-            }else if (strncmp(token, "gsm", 4) == 0){
-                if (!gsm_init_codec(&codec)){
-                    wr_set_error("Cannot initialize codec GSM 06.10");
-                    goto cannot_initialize_codec;
-                }
-            }else if (strncmp(token, "g711u", 6) == 0){
-                if (!g711u_init_codec(&codec)){
-                    wr_set_error("Cannot initialize codec G.711 (u-Law)");
-                    goto cannot_initialize_codec;
-                }
-            }else if (strncmp(token, "dummy", 6) == 0){
-                if (!dummy_init_codec(&codec)){
-                    wr_set_error("Cannot initialize codec dummy");
-                    goto cannot_initialize_codec;
-                }
-            }else{
-                printf("Codec not recognized");
-                goto cannot_initialize_codec;
+            wr_codec_t * pcodec = get_codec_by_name(token);
+            if (!pcodec || !(*pcodec->init)(pcodec) ){
+                wr_set_error("Cannot found codec with given name");
+                list_destroy(codec_list);
+                free_codec_list(codec_list);
+                return WR_FATAL;
             }
-
-            /* Create wr_codec_t */
-            pcodec = (wr_codec_t*)malloc(sizeof(wr_codec_t));
-            if (!pcodec){
-                goto cannot_initialize_codec;
-            }
-            memcpy(pcodec, &codec, sizeof(wr_codec_t));      
             list_append(codec_list, pcodec);
             /* Next iteration */
             token = strtok_r(NULL, ",", &lasts);
         }  
         (*pcodec_list) = codec_list;
         return WR_OK;
-
-        cannot_initialize_codec:
-            list_destroy(codec_list);
-            return WR_FATAL;
     }
 }
 
-/** 
- * Free memory previously allocated with get_codec_list
- */
-void free_codec_list(list_t * list)    
+
+
+void free_codec_list(list_t * list)
 {
-    list_destroy(list);
     free(list);
-    return; 
 }

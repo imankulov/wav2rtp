@@ -35,8 +35,6 @@
 #include <string.h>
 #include <sndfile.h> 
 
-#include "wav2rtp.h"
-
 #include "options.h"
 #include "error_types.h"
 

@@ -32,38 +32,35 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef __SPEEX_CODEC_H
-#define __SPEEX_CODEC_H
+#ifndef __RTPMAP_H
+#define __RTPMAP_H
 
-#include <speex/speex.h>
-#include "codecapi.h"
+#include "dummy_codec.h"
+#include "gsm_codec.h"
+#include "speex_codec.h"
+#include "g711u_codec.h"
 
-/** Speex codec object */
-typedef struct {
+/** @defgroup rtp_map  Codec list 
+ *  @{
+ */
 
-    /* Speex state */
-    SpeexBits bits;     /**< speex bit-packing struct  */
-    void * enc_state;   /**< speex encoder state */
+/**
+ * Maximum size of the codec name
+ */
+#define WR_MAX_CODEC_NAME_SIZE 16
 
-    /* Speex options */
-    int quality;        /**< speex quality: 0<=q<=10 */
-    int complexity;     /**< speex encoder complexity */
-    int bitrate;        /**< bitrate */
-    int abr_enabled;    /**< average bitrate */
-    int vad_enabled;    /**< voice activity detection */
-    int dtx_enabled;    /**< discontinious transmission */
-    int vbr_enabled;    /**< boolean value, true if VBR (vraiable bit-rate) should be enabled */
-    float vbr_quality;  /**< VBR quality: 0<=q<=10 */
-    #ifdef SPEEX_SET_VBR_MAX_BITRATE
-    int vbr_max_bitrate;/**< max bitrate with VBR enabled */
-    #endif
-    
-} speex_state;
+/**
+ * Codec list
+ */
+extern wr_codec_t rtpmap[];
 
-wr_codec_t *  wr_speex_init_codec(wr_codec_t * );
-void wr_speex_destroy_codec(wr_codec_t *);
-int wr_speex_get_input_buffer_size(void * state);
-int wr_speex_get_output_buffer_size(void * state);
-int wr_speex_encode(void * state, const short * input, char * output); 
+/**
+ * Return codec by its name or NULL if nothing is found
+ */
+wr_codec_t * get_codec_by_name(const char * name);
 
+/**
+ * Return codec by its payload type (PT) or NULL if nothing is found
+ */
+wr_codec_t * get_codec_by_pt(int payload_type);
 #endif

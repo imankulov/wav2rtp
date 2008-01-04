@@ -35,7 +35,7 @@
 #ifndef __G711U_CODEC_H
 #define __G711U_CODEC_H
 
-#include "wav2rtp.h"
+#include "codecapi.h"
 
 typedef struct {
     int buffer_size;

@@ -42,7 +42,6 @@
 #include "contrib/iniparser.h"
 #include "contrib/simclist.h"
 #include "error_types.h"
-#include "wav2rtp.h"
 
 /** Options passed from command-line arguments */
 typedef struct __wr_options {
