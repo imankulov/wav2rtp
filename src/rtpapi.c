@@ -60,7 +60,6 @@ int wr_rtp_packet_copy(wr_rtp_packet_t * new_packet, wr_rtp_packet_t * old_packe
 
 int wr_rtp_packet_copy_with_data(wr_rtp_packet_t * new_packet, wr_rtp_packet_t * old_packet)
 {
-    /* XXX: Not yet tested */
     wr_rtp_packet_copy(new_packet, old_packet);
     list_init(&new_packet->data_frames);
     list_iterator_start(&old_packet->data_frames);
@@ -69,6 +68,7 @@ int wr_rtp_packet_copy_with_data(wr_rtp_packet_t * new_packet, wr_rtp_packet_t *
         wr_rtp_packet_add_frame(new_packet, frame->data, frame->size, frame->length_in_ms);
     }
     list_iterator_stop(&old_packet->data_frames);
+    return 0;
 }
 
 

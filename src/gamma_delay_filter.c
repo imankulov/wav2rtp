@@ -45,7 +45,6 @@ wr_errorcode_t wr_gamma_delay_filter_notify(wr_rtp_filter_t * filter, wr_event_t
             wr_gamma_delay_filter_state_t * state = calloc(1, sizeof(*state));
             state->shape = iniparser_getpositiveint(wr_options.output_options, "gamma_delay:shape", 0);
             state->scale = iniparser_getpositiveint(wr_options.output_options, "gamma_delay:scale", 0);
-            setall(random(), random());
             filter->state = (void*)state;
             wr_rtp_filter_notify_observers(filter, event, packet);
             return WR_OK;

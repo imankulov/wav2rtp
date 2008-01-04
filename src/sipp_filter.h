@@ -32,17 +32,14 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef MARKOV_LOSSES_FILTER_H
-#define MARKOV_LOSSES_FILTER_H
+#ifndef SIPP_FILTER_H
+#define SIPP_FILTER_H
 #include "rtpapi.h"
 
-/** @defgroup markov_losses markov losses filter
+/** @defgroup sipp markov losses filter
  * This filter emulates markov random losses.
  * Markov losses means the next state solely depends on the present state.
- * It uses section [markov_losses] of the configuration file "output.ini"
- * There is two used options
- * loss_0_1 = float from 0 to 1, loss probability on conditions that prevoius packet was NOT lost
- * loss_1_1 = float from 0 to 1, loss probability on conditions that prevoius packet was lost
+ * It uses section [sipp] of the configuration file "output.ini"
  *
  *  @{
  */
@@ -51,17 +48,15 @@
 /** 
  * Structure to store  internal state of the pcap output filter
  */
-typedef struct __wr_markov_losses_filter_state {
-    int  prev_lost;
-    double loss_0_1;
-    double loss_1_1;
-} wr_markov_losses_filter_state_t;
+typedef struct __wr_sipp_filter_state {
+    int duration; /**< total duration of the rtp packet */
+} wr_sipp_filter_state_t;
 
 /**
- * Loss random data from input stream and pass result stream to its output.
+ * Print to stdout essentials parts of thie SIPp XML scenario
  * This method is invoked when filter is notified.
  */
-wr_errorcode_t wr_markov_losses_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet);
+wr_errorcode_t wr_sipp_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet);
 /** @} */
 
 #endif

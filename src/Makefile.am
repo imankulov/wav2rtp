@@ -23,6 +23,7 @@ wav2rtp_SOURCES = wav2rtp.c wav2rtp.h options.c options.h \
 	uniform_delay_filter.c uniform_delay_filter.h \
 	gamma_delay_filter.c gamma_delay_filter.h \
 	log_filter.c log_filter.h \
+	sipp_filter.c sipp_filter.h \
 	sort_filter.c sort_filter.h \
 	misc.c misc.h
 

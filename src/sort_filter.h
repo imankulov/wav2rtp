@@ -51,6 +51,7 @@
  * Structure to store  internal state of the pcap output filter
  */
 typedef struct __wr_sort_filter_state {
+    int enabled;
     size_t buffer_size;
     list_t buffer;
 } wr_sort_filter_state_t;

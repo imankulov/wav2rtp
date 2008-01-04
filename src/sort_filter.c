@@ -52,6 +52,7 @@ wr_errorcode_t wr_sort_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
 
         case TRANSMISSION_START:  {
             wr_sort_filter_state_t * state = calloc(1, sizeof(*state));
+            state->enabled = iniparser_getboolean(wr_options.output_options, "sort:enabled", 1);
             state->buffer_size = iniparser_getpositiveint(wr_options.output_options, "sort:buffer_size", 1);
             list_init(&state->buffer);
             list_attributes_comparator(&state->buffer, &wr_rtp_timestamp_comparator);
@@ -59,18 +60,22 @@ wr_errorcode_t wr_sort_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
             wr_rtp_filter_notify_observers(filter, event, packet);
             return WR_OK;
         }
-        case NEW_PACKET: {
+        case NEW_PACKET: { 
             wr_sort_filter_state_t * state = (wr_sort_filter_state_t * ) (filter->state);
+            if (!state->enabled){
+                wr_rtp_filter_notify_observers(filter, event, packet);
+                return WR_OK;
+            }
             wr_rtp_packet_t * new_packet = calloc(1, sizeof(*new_packet));
             wr_rtp_packet_copy_with_data(new_packet, packet);
             list_append(&state->buffer, (void*)new_packet);
             if (list_size(&state->buffer) > state->buffer_size){
-                wr_rtp_packet_t * packet;
+                wr_rtp_packet_t * first_packet;
                 list_sort(&state->buffer, -1); 
-                packet = list_extract_at(&state->buffer, 0);
-                wr_rtp_filter_notify_observers(filter, event, packet);
-                wr_rtp_packet_destroy(packet);
-                free(packet);
+                first_packet = list_extract_at(&state->buffer, 0);
+                wr_rtp_filter_notify_observers(filter, event, first_packet);
+                //wr_rtp_packet_destroy(first_packet);
+                //free(first_packet);
             }
             return WR_OK;
         }

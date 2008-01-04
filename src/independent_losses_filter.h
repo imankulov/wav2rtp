@@ -39,9 +39,7 @@
 /** @defgroup independent_losses independent losses filter
  * This filter emulates independent random losses.
  * It uses section [independent_losses] of the configuration file "output.ini"
- * There is two used options
- * initial_seed =  integer, which use as initial seed to random numbers generator, 
- * initial_seed may be equals to 0 and that means "use localtime as initial value"
+ * There is one used option
  * loss_rate = float from 0 to 1
  *  @{
  */
@@ -51,7 +49,6 @@
  * Structure to store internal state of the pcap output filter
  */
 typedef struct __wr_independent_losses_filter_state {
-    char random_state [256];
     double loss_rate;
 } wr_independent_losses_filter_state_t;
 

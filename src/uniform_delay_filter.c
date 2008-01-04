@@ -32,7 +32,7 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <sys/time.h>
+#include "contrib/ranlib/ranlib.h"
 #include "uniform_delay_filter.h"
 
 
@@ -41,35 +41,33 @@ wr_errorcode_t wr_uniform_delay_filter_notify(wr_rtp_filter_t * filter, wr_event
     switch(event){
 
         case TRANSMISSION_START:  {
+
             wr_uniform_delay_filter_state_t * state = calloc(1, sizeof(*state));
-            bzero(state->random_state, 256);
-            int seed = iniparser_getint(wr_options.output_options, "uniform_delay:random_seed", 0);
-            if (seed == 0){
-                struct timeval tv;
-                gettimeofday(&tv, NULL);
-                memcpy(&seed, &tv, sizeof(seed));
+            state->enabled = iniparser_getboolean(wr_options.output_options, "uniform_delay:enabled", 1);
+            if (state->enabled){
+                state->min_delay = iniparser_getnonnegativeint(wr_options.output_options, "uniform_delay:min_delay", 0);
+                state->max_delay = iniparser_getnonnegativeint(wr_options.output_options, "uniform_delay:max_delay", 0);
             }
-            initstate(*(unsigned*)&seed, state->random_state, 256);
-            state->min_delay = iniparser_getnonnegativeint(wr_options.output_options, "uniform_delay:min_delay", 0);
-            state->max_delay = iniparser_getnonnegativeint(wr_options.output_options, "uniform_delay:max_delay", 0);
             filter->state = (void*)state;
             wr_rtp_filter_notify_observers(filter, event, packet);
             return WR_OK;
         }
         case NEW_PACKET: {
             wr_uniform_delay_filter_state_t * state = (wr_uniform_delay_filter_state_t * ) (filter->state);
-            long randlong = rand();        
-            double rand = (double)randlong/RAND_MAX; /*  assume that rand always < 1  */
-            int delay = state->min_delay + ( state->max_delay + 1 - state->min_delay ) * rand;
+            int delay;
             wr_rtp_packet_t new_packet;
+            if (!state->enabled){
+                wr_rtp_filter_notify_observers(filter, event, packet);
+                return WR_OK;
+            }
+            delay = ignuin(state->min_delay, state->max_delay);
             wr_rtp_packet_copy(&new_packet, packet);
             timeval_increment(&new_packet.lowlevel_timestamp, delay);
             wr_rtp_filter_notify_observers(filter, event, &new_packet);
             return WR_OK;
         }
         case TRANSMISSION_END: {
-            wr_uniform_delay_filter_state_t * state = (wr_uniform_delay_filter_state_t * ) (filter->state);
-            free(state);
+            free(filter->state);
             wr_rtp_filter_notify_observers(filter, event, packet);
             return WR_OK;
         }

@@ -41,8 +41,6 @@
  * distribution as model.
  * It uses section [uniform_delay] of the configuration file "output.ini"
  * There is two used options
- * initial_seed = integer, which use as initial seed to random numbers generator, 
- * initial_seed may be equals to 0 and that means "use localtime as initial value".
  *
  *    min_delay = integer
  *    max_delay = integer
@@ -56,7 +54,7 @@
  * Structure to store internal state of the delay filter
  */
 typedef struct __wr_uniform_delay_filter_state {
-    char random_state [256];
+    int enabled;
     int min_delay;
     int max_delay;
 } wr_uniform_delay_filter_state_t;

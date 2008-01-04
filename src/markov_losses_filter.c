@@ -42,14 +42,6 @@ wr_errorcode_t wr_markov_losses_filter_notify(wr_rtp_filter_t * filter, wr_event
 
         case TRANSMISSION_START:  {
             wr_markov_losses_filter_state_t * state = calloc(1, sizeof(*state));
-            bzero(state->random_state, 256);
-            int seed = iniparser_getint(wr_options.output_options, "markov_losses:random_seed", 0);
-            if (seed == 0){
-                struct timeval tv;
-                gettimeofday(&tv, NULL);
-                memcpy(&seed, &tv, sizeof(seed));
-            }
-            initstate(*(unsigned*)&seed, state->random_state, 256);
 
             state->loss_1_1 = iniparser_getdouble(wr_options.output_options, "markov_losses:loss_1_1", 0);
             if (state->loss_1_1 < 0 )  state->loss_1_1 = 0;
@@ -68,7 +60,6 @@ wr_errorcode_t wr_markov_losses_filter_notify(wr_rtp_filter_t * filter, wr_event
             wr_markov_losses_filter_state_t * state = (wr_markov_losses_filter_state_t * ) (filter->state);
             double threshold =  (state->prev_lost) ? state->loss_1_1 : state->loss_0_1;
             int lost;
-            setstate(state->random_state);
             rand = (double) random() / RAND_MAX;
             state->prev_lost = (rand < threshold) ? 1 : 0;
             if (!state->prev_lost){

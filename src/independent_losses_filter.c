@@ -42,14 +42,6 @@ wr_errorcode_t wr_independent_losses_filter_notify(wr_rtp_filter_t * filter, wr_
 
         case TRANSMISSION_START:  {
             wr_independent_losses_filter_state_t * state = calloc(1, sizeof(*state));
-            bzero(state->random_state, 256);
-            int seed = iniparser_getint(wr_options.output_options, "independent_losses:random_seed", 0);
-            if (seed == 0){
-                struct timeval tv;
-                gettimeofday(&tv, NULL);
-                memcpy(&seed, &tv, sizeof(seed));
-            }
-            initstate(*(unsigned*)&seed, state->random_state, 256);
             state->loss_rate = iniparser_getdouble(wr_options.output_options, "independent_losses:loss_rate", 0);
             if (state->loss_rate < 0 )  state->loss_rate = 0;
             if (state->loss_rate > 1 )  state->loss_rate = 1;             
@@ -61,7 +53,6 @@ wr_errorcode_t wr_independent_losses_filter_notify(wr_rtp_filter_t * filter, wr_
             double rand;
             wr_independent_losses_filter_state_t * state = (wr_independent_losses_filter_state_t * ) (filter->state);
             int lost;
-            setstate(state->random_state);
             rand = (double) random() / RAND_MAX;
             lost = (rand < state->loss_rate) ? 1 : 0;
             if (!lost){

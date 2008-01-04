@@ -50,6 +50,7 @@
 #include "uniform_delay_filter.h"
 #include "gamma_delay_filter.h"
 #include "log_filter.h"
+#include "sipp_filter.h"
 
 #include "speex_codec.h"
 #include "dummy_codec.h"
@@ -63,33 +64,64 @@
 
 int main(int argc, char ** argv)
 {
-    wr_rtp_filter_t input_filter;
-    wr_rtp_filter_t losses_filter;
-    wr_rtp_filter_t delay_filter;
-    wr_rtp_filter_t pcap_filter;
-    wr_rtp_filter_t sort_filter;
+
+
+    wr_rtp_filter_t wavfile_filter;
+
+    wr_rtp_filter_t gamma_delay_filter;
+    wr_rtp_filter_t uniform_delay_filter;
+
+    wr_rtp_filter_t markov_losses_filter;
+    wr_rtp_filter_t independent_losses_filter;
+
     wr_rtp_filter_t log_filter;
+    wr_rtp_filter_t pcap_filter;
+    wr_rtp_filter_t sipp_filter;
+    wr_rtp_filter_t sort_filter;
+
     wr_errorcode_t retval;
-        
+
+    /* parse options */
     if ((retval=get_options(argc, argv)) != WR_OK){
         fprintf(stderr, "FATAL ERROR: %s\n", wr_error);
         return retval;
     }
 
-    wr_rtp_filter_create(&input_filter, "input wav file filter", &wr_do_nothing_on_notify);
-    // wr_rtp_filter_create(&losses_filter, "independent losses intermediate filter", &wr_independent_losses_filter_notify);
-    wr_rtp_filter_create(&delay_filter, "gamma delay intermediate filter", &wr_gamma_delay_filter_notify);
+    /* initialize random number generator */
+    {
+        unsigned seed;
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        memcpy(&seed, &tv, sizeof(seed));
+        srandom(seed);
+        setall(random(), random());
+    }
+
+    wr_rtp_filter_create(&wavfile_filter, "input wav file filter", &wr_do_nothing_on_notify);
+
+    wr_rtp_filter_create(&gamma_delay_filter, "gamma delay intermediate filter", &wr_gamma_delay_filter_notify);
+    wr_rtp_filter_create(&uniform_delay_filter, "uniform_delay intermediate filter", &wr_uniform_delay_filter_notify);
+
+    wr_rtp_filter_create(&markov_losses_filter, "markov_losses intermediate filter", &wr_markov_losses_filter_notify);
+    wr_rtp_filter_create(&independent_losses_filter, "independent_losses intermediate filter", &wr_independent_losses_filter_notify);
+
+    wr_rtp_filter_create(&log_filter, "log intermediate filter", &wr_log_filter_notify);
     wr_rtp_filter_create(&pcap_filter, "pcap output filter", &wr_pcap_filter_notify);
     wr_rtp_filter_create(&log_filter, "log filter", &wr_log_filter_notify);
+    wr_rtp_filter_create(&sipp_filter, "sipp filter", &wr_sipp_filter_notify);
     wr_rtp_filter_create(&sort_filter, "sort filter", &wr_sort_filter_notify);
    
-    // wr_rtp_filter_append_observer(&input_filter, &losses_filter);
-    wr_rtp_filter_append_observer(&input_filter, &delay_filter);
-    wr_rtp_filter_append_observer(&delay_filter, &sort_filter);
-    wr_rtp_filter_append_observer(&sort_filter, &log_filter);
-    wr_rtp_filter_append_observer(&sort_filter, &pcap_filter);
+    wr_rtp_filter_append_observer(&wavfile_filter, &gamma_delay_filter);
+    wr_rtp_filter_append_observer(&gamma_delay_filter, &uniform_delay_filter);
+    wr_rtp_filter_append_observer(&uniform_delay_filter, &sort_filter);
+    wr_rtp_filter_append_observer(&sort_filter, &markov_losses_filter);
+    wr_rtp_filter_append_observer(&markov_losses_filter, &independent_losses_filter);
+
+    wr_rtp_filter_append_observer(&independent_losses_filter, &log_filter);
+    wr_rtp_filter_append_observer(&independent_losses_filter, &pcap_filter);
+    wr_rtp_filter_append_observer(&independent_losses_filter, &sipp_filter);
    
-    wr_wavfile_filter_start(&input_filter);
+    wr_wavfile_filter_start(&wavfile_filter);
 
     return 0; 
 }
