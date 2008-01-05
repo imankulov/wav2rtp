@@ -41,17 +41,20 @@ wr_errorcode_t wr_log_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t ev
     switch(event){
 
         case TRANSMISSION_START:  {
-            // printf("transmission starts\n");
             wr_log_filter_state_t * state = calloc(1, sizeof(*state));
+            state->enabled = iniparser_getboolean(wr_options.output_options, "log:enabled", 1);
             filter->state = (void*)state;
             wr_rtp_filter_notify_observers(filter, event, packet);
             return WR_OK;
         }
         case NEW_PACKET: {
             char diff[256];
-            bzero(diff, sizeof(diff));
             wr_log_filter_state_t * state = (wr_log_filter_state_t * ) (filter->state);
-
+            if (!state->enabled){
+                wr_rtp_filter_notify_observers(filter, event, packet);
+                return WR_OK;
+            }
+            bzero(diff, sizeof(diff));
             /* count diff between current and previous timestamps */
             if (!timerisset(&state->prev_timestamp)){
                 strncpy(diff, "--.------", 255);
@@ -81,7 +84,6 @@ wr_errorcode_t wr_log_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t ev
             return WR_OK;
         }
         case TRANSMISSION_END: {
-            // printf("transmission ends\n");
             free(filter->state);
             wr_rtp_filter_notify_observers(filter, event, packet);
             return WR_OK;

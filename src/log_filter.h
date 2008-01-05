@@ -45,6 +45,7 @@
  * Structure to store internal state of the log filter
  */
 typedef struct __wr_log_filter_state {
+    int enabled;
     struct timeval prev_timestamp;
 } wr_log_filter_state_t;
 
