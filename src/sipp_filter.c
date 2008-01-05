@@ -113,10 +113,15 @@ wr_errorcode_t wr_sipp_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
                 wr_rtp_filter_notify_observers(filter, event, packet);
                 return WR_OK;
             }
+            if (!timerisset(&state->first_timestamp)){
+                memcpy(&state->first_timestamp, &packet->lowlevel_timestamp, sizeof(struct timeval));
+            }
+            memcpy(&state->last_timestamp, &packet->lowlevel_timestamp, sizeof(struct timeval));
             list_iterator_start(&packet->data_frames);
+            state->last_duration = 0;
             while (list_iterator_hasnext(&packet->data_frames)) {
                 wr_data_frame_t * data = (wr_data_frame_t*)list_iterator_next(&packet->data_frames);
-                state->duration += data->length_in_ms;
+                state->last_duration += data->length_in_ms;
             }
             list_iterator_stop(&packet->data_frames);
             wr_rtp_filter_notify_observers(filter, event, packet);
@@ -125,7 +130,11 @@ wr_errorcode_t wr_sipp_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
         case TRANSMISSION_END: {
             wr_sipp_filter_state_t * state = (wr_sipp_filter_state_t * ) (filter->state);
             if (state->enabled){
-                __print_sipp_scenario(state->duration);
+                struct timeval diff;
+                int duration = state->last_duration;
+                timersub(&state->last_timestamp, &state->first_timestamp, &diff);
+                duration += (diff.tv_sec * 1000 + diff.tv_usec / 1000);
+                __print_sipp_scenario(duration);
             }
             free(state);
             wr_rtp_filter_notify_observers(filter, event, packet);

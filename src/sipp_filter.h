@@ -50,7 +50,9 @@
  */
 typedef struct __wr_sipp_filter_state {
     int enabled;
-    int duration; /**< total duration of the rtp packet */
+    struct timeval first_timestamp; /**< timestamp of the firt packet */
+    struct timeval last_timestamp;  /**< timestamp of the last packet */
+    int last_duration;              /**< duration (in ms.) of the last packet */
 } wr_sipp_filter_state_t;
 
 /**
