@@ -52,7 +52,6 @@ void print_usage()
             "  -c, --codec-list         \tComma separated list of codecs (without spaces), which will be used to encode .wav file\n"
             "  -o, --output-option      \tOutput option which redefine " CONFDIR "/output.conf. Recorded in form \"section:key=value\"\n"
             "  -O, --codecs-option       \tCodec option which redefine " CONFDIR "/codecs.conf. Recorded in the form \"section:key=value\"\n"
-            "  -s, --print-sipp-scenario\tPrint two essential parts of SIPp scenario: SDP data packet and XML-string which force to play pcap audio\n"
             "\n"
             "Codecs options (such as payload type and other) may be defined in the config file: " CONFDIR "/codecs.conf\n"
             "\n"
@@ -86,7 +85,6 @@ wr_errorcode_t get_options(const int argc, char * const argv[])
         {"output-option", 1, NULL, 'o', },
         {"codecs-option", 1, NULL, 'O', },
         {"to-file", 1, NULL, 't', }, 
-        {"print-sipp-scenario", 0, NULL, 's', }, 
         {0, 0, 0, 0},
     };
 
@@ -124,9 +122,6 @@ wr_errorcode_t get_options(const int argc, char * const argv[])
                 break;
             case 't':
                 wr_options.output_filename = optarg;
-                break;
-            case 's':
-                wr_options.print_sipp_scenario = 1;
                 break;
             case 'o':
                 if (define_option(optarg, wr_options.output_options) != WR_OK)

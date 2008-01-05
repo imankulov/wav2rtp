@@ -49,6 +49,7 @@
  * Structure to store internal state of the pcap output filter
  */
 typedef struct __wr_independent_losses_filter_state {
+    int enabled;
     double loss_rate;
 } wr_independent_losses_filter_state_t;
 

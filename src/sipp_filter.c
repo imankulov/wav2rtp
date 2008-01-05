@@ -42,9 +42,6 @@
 void __print_sipp_scenario(int duration)
 {
 
-    if (!wr_options.print_sipp_scenario)
-        return; 
-
     printf("***sdp_data_packet***\n"); 
     printf(
         "v=0\n"
@@ -104,6 +101,7 @@ wr_errorcode_t wr_sipp_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
 
         case TRANSMISSION_START:  {
             wr_sipp_filter_state_t * state = calloc(1, sizeof(*state));
+            state->enabled = iniparser_getboolean(wr_options.output_options, "sipp:enabled", 1);
             filter->state = (void*)state;
             wr_rtp_filter_notify_observers(filter, event, packet);
             return WR_OK;
@@ -111,6 +109,10 @@ wr_errorcode_t wr_sipp_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
         case NEW_PACKET: {
             double rand;
             wr_sipp_filter_state_t * state = (wr_sipp_filter_state_t * ) (filter->state);
+            if (!state->enabled){
+                wr_rtp_filter_notify_observers(filter, event, packet);
+                return WR_OK;
+            }
             list_iterator_start(&packet->data_frames);
             while (list_iterator_hasnext(&packet->data_frames)) {
                 wr_data_frame_t * data = (wr_data_frame_t*)list_iterator_next(&packet->data_frames);
@@ -122,7 +124,9 @@ wr_errorcode_t wr_sipp_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
         }
         case TRANSMISSION_END: {
             wr_sipp_filter_state_t * state = (wr_sipp_filter_state_t * ) (filter->state);
-            __print_sipp_scenario(state->duration);
+            if (state->enabled){
+                __print_sipp_scenario(state->duration);
+            }
             free(state);
             wr_rtp_filter_notify_observers(filter, event, packet);
             return WR_OK;

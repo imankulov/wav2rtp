@@ -52,6 +52,7 @@
  * Structure to store  internal state of the pcap output filter
  */
 typedef struct __wr_markov_losses_filter_state {
+    int enabled;
     int  prev_lost;
     double loss_0_1;
     double loss_1_1;

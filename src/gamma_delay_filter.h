@@ -54,6 +54,7 @@
  */
 
 typedef struct __wr_gamma_delay_filter_state {
+    int enabled;
     int shape;
     int scale;
 } wr_gamma_delay_filter_state_t;

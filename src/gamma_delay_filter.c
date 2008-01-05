@@ -43,6 +43,7 @@ wr_errorcode_t wr_gamma_delay_filter_notify(wr_rtp_filter_t * filter, wr_event_t
 
         case TRANSMISSION_START:  {
             wr_gamma_delay_filter_state_t * state = calloc(1, sizeof(*state));
+            state->enabled = iniparser_getboolean(wr_options.output_options, "gamma_delay:enabled", 1);
             state->shape = iniparser_getpositiveint(wr_options.output_options, "gamma_delay:shape", 0);
             state->scale = iniparser_getpositiveint(wr_options.output_options, "gamma_delay:scale", 0);
             filter->state = (void*)state;
@@ -51,7 +52,12 @@ wr_errorcode_t wr_gamma_delay_filter_notify(wr_rtp_filter_t * filter, wr_event_t
         }
         case NEW_PACKET: {
             wr_gamma_delay_filter_state_t * state = (wr_gamma_delay_filter_state_t * ) (filter->state);
-            int delay = (int)gengam(1/(float)state->scale, state->shape);
+            int delay;
+            if (!state->enabled){
+                wr_rtp_filter_notify_observers(filter, event, packet);
+                return WR_OK;
+            }
+            delay =  (int)gengam(1/(float)state->scale, state->shape);
             wr_rtp_packet_t new_packet;
             wr_rtp_packet_copy(&new_packet, packet);
             timeval_increment(&new_packet.lowlevel_timestamp, delay);

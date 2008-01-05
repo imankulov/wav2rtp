@@ -49,6 +49,7 @@
  * Structure to store  internal state of the pcap output filter
  */
 typedef struct __wr_sipp_filter_state {
+    int enabled;
     int duration; /**< total duration of the rtp packet */
 } wr_sipp_filter_state_t;
 
