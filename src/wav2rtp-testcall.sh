@@ -36,34 +36,26 @@
 
 HELP_STRING="
 This script runs wav2rtp and sipp one after another. 
-Its behaviour is confugured with environement variables
-listed below:
+Its behaviour is confugured with environement variables and options for wav2rtp.
+
+Environment variables are listed below:
 
     WAV2RTP         path to wav2rtp program (default: search in \$PATH)
     SIPP            path to sipp program (default: search in \$PATH)
     SCENARIO        path to basic scenario.xml file (default: ./scenario.xml)
-    WAV             path to input .wav file (default: ./test.wav)
-    PCAP            path to output .pcap file (default: \$WAV with replace .wav to .pcap)
     HOST            destination IP-address (default is 127.0.0.1)
     THISHOST        source (this host) IP-address (default is 127.0.0.1)
-    CODEC_LIST      comma-separated list of codecs which will be used to encode .wav file to RTP
-                    (is not set by default thus must be defined explicitly)
     CLIENT_USERNAME name of the service on the client-side (default: \"service\")
 
 Example: 
 
-SIPP=~/svn-checkouts/sipp/trunk/sipp  CODEC_LIST='g711u,gsm,gsm' $0
+SCENARIO=../doc/examples/scenario.xml  $0 -c speex -f test.wav -t test.pcap \\
+    -o independent_losses:enabled=true -o independent_losses:loss_rate=0.05
 
 "
 # Search for wav2rtp
-if [[ ! $WAV2RTP ]]; then 
-    WAV2RTP=$(which wav2rtp)
-fi
-
-if [[ ! $WAV2RTP ]]; then 
-    WAV2RTP=./wav2rtp
-fi
-
+WAV2RTP=${WAV2RTP:-$(which wav2rtp)}
+WAV2RTP=${WAV2RTP:-./wav2rtp}
 if [[ ! -x $WAV2RTP ]]; then
     echo "$HELP_STRING"
     echo "wav2rtp executable is not found"
@@ -71,10 +63,7 @@ if [[ ! -x $WAV2RTP ]]; then
 fi
 
 # Search for sipp
-if [[ ! $SIPP ]]; then 
-    SIPP=$(which sipp)
-fi
-
+SIPP=${SIPP:-$(which sipp)}
 if [[ ! -x $SIPP ]]; then
     echo "$HELP_STRING"
     echo "sipp executable is not found"
@@ -82,10 +71,7 @@ if [[ ! -x $SIPP ]]; then
 fi
 
 # Search for scenario
-if [[ ! $SCENARIO ]]; then 
-    SCENARIO=scenario.xml
-fi
-
+SCENARIO=${SCENARIO:-scenario.xml}
 if [[ ! -f $SCENARIO ]]; then
     echo "$HELP_STRING"
     echo "scenario.xml is not found"
@@ -93,51 +79,22 @@ if [[ ! -f $SCENARIO ]]; then
 fi
 
 # Define client name
-if [[ ! $CLIENT_USERNAME ]]; then 
-    CLIENT_USERNAME=service
-fi
-
-
-# Search for wav file
-if [[ ! $WAV ]]; then 
-    WAV=test.wav
-fi
-
-if [[ ! -f $WAV ]]; then
-    echo "$HELP_STRING"
-    echo "input wavfile is not found"
-    exit 1
-fi
-
-# Ouput pcap file definition
-if [[ ! $PCAP ]]; then 
-    PCAP=$(echo "$WAV" | sed -r  's/\.[^.]+$/.pcap/g')
-fi
+CLIENT_USERNAME=${CLIENT_USERNAME:-service}
 
 # Remote host
-if [[ ! $HOST ]]; then
-    HOST=127.0.0.1
-fi
+HOST=${HOST:-127.0.0.1}
 
 # Local host
-if [[ ! $THISHOST ]]; then
-    THISHOST=127.0.0.1
-fi
-
-# Codec list
-
-if [[ ! $CODEC_LIST ]]; then
-    echo "$HELP_STRING"
-    echo "Define codec list!"
-    exit 1
-fi
+THISHOST=${THISHOST:-127.0.0.1}
 
 sdp_data_packet_file=$(mktemp)
 play_pcap_xml_file=$(mktemp)
 scenario_file=$(mktemp)
 trap "rm -f $sdp_data_packet_file $play_pcap_xml_file $scenario_file" 0 2 3 15
 
-$WAV2RTP --from-file $WAV --codec-list $CODEC_LIST --to-file $PCAP --print-sipp-scenario | awk "
+
+echo $WAV2RTP $@  -o "sipp:enabled=true"
+$WAV2RTP $@ -o "sipp:enabled=true" | awk "
 /\*\*\*sdp_data_packet\*\*\*/{
     sdp_data_packet_found=1;
     play_pcap_xml_found=0;
