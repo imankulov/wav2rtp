@@ -39,7 +39,9 @@
 #include <sys/time.h>
 #include "error_types.h"
 #include "options.h"
-#include "config.h"
+#ifdef HAVE_CONFIG_H
+    #include <config.h>
+#endif
 
 #define MAX_OBSERVERS 256
 

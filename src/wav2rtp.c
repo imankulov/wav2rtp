@@ -78,9 +78,12 @@ int main(int argc, char ** argv)
     wr_errorcode_t retval;
 
     /* parse options */
-    if ((retval=get_options(argc, argv)) != WR_OK){
+    retval = get_options(argc, argv);
+    if (retval == WR_FATAL){
         fprintf(stderr, "FATAL ERROR: %s\n", wr_error);
         return retval;
+    }else if (retval == WR_STOP){
+        return 0;
     }
 
     /* initialize random number generator */
