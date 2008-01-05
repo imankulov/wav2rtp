@@ -55,8 +55,6 @@
 #include "gsm_codec.h"
 #include "g711u_codec.h"
 
-#include "network_emulator.h"
-
 
 
 

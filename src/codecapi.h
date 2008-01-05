@@ -39,7 +39,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdint.h>
-#include "network_emulator.h"
 #include "contrib/simclist.h"
 
 
