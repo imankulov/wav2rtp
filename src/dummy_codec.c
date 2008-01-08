@@ -37,7 +37,7 @@
 #include "dummy_codec.h"
 #include "options.h"
 
-wr_codec_t * dummy_init_codec(wr_codec_t * pcodec)
+wr_codec_t * wr_dummy_encoder_init(wr_codec_t * pcodec)
 {
     
     dummy_state * state = malloc(sizeof(dummy_state));
@@ -47,35 +47,27 @@ wr_codec_t * dummy_init_codec(wr_codec_t * pcodec)
     state->input_buffer_size = iniparser_getpositiveint(wr_options.codecs_options, "dummy:input_buffer_size", 640);
     state->output_buffer_size = iniparser_getpositiveint(wr_options.codecs_options, "dummy:output_buffer_size", 64);
 
-    pcodec->name = "DUMMY";
-    pcodec->sample_rate = 8000;
-    pcodec->description = "It's not a codec in fact. It's just for testing and demonstrating purposes.";
-
     pcodec->state = (void*) state;
     pcodec->payload_type = iniparser_getnonnegativeint(wr_options.codecs_options, "dummy:payload_type", 0);
-    pcodec->get_input_buffer_size = &dummy_get_input_buffer_size;
-    pcodec->get_output_buffer_size = &dummy_get_output_buffer_size;
-    pcodec->encode = &dummy_encode;
-    pcodec->destroy = &dummy_destroy_codec;
     return pcodec;
 
 }
-void dummy_destroy_codec(wr_codec_t * pcodec)
+void wr_dummy_encoder_destroy(wr_codec_t * pcodec)
 {
     free(pcodec->state);
 }
 
-int dummy_get_input_buffer_size(void * state)
+int wr_dummy_encoder_get_input_buffer_size(void * state)
 {
     dummy_state * dstate = (dummy_state *)state;
     return dstate->input_buffer_size;
 }
-int dummy_get_output_buffer_size(void * state)
+int wr_dummy_encoder_get_output_buffer_size(void * state)
 {
     dummy_state * dstate = (dummy_state *)state;
     return dstate->output_buffer_size;
 }
-int dummy_encode(void * state, const short * input, char * output) 
+int wr_dummy_encode(void * state, const short * input, char * output) 
 {
     int i;
     dummy_state * dstate = (dummy_state *)state;

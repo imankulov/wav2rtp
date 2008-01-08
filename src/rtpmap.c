@@ -38,13 +38,13 @@
 
 wr_codec_t rtpmap[] = {
     {"DUMMY", "Codec for testing and demo purposes", NULL, 111, 8000, 
-            dummy_get_input_buffer_size, dummy_get_output_buffer_size, dummy_encode, dummy_init_codec, dummy_destroy_codec}, 
+            wr_dummy_encoder_get_input_buffer_size, wr_dummy_encoder_get_output_buffer_size, wr_dummy_encode, wr_dummy_encoder_init, wr_dummy_encoder_destroy}, 
     {"GSM", "GSM 06.10 full-rate codec", NULL, 3, 8000, 
-            wr_gsm_get_input_buffer_size, wr_gsm_get_output_buffer_size, wr_gsm_encode, gsm_init_codec, wr_gsm_destroy_codec}, 
+            wr_gsm_encoder_get_input_buffer_size, wr_gsm_encoder_get_output_buffer_size, wr_gsm_encode, wr_gsm_encoder_init, wr_gsm_encoder_destroy}, 
     {"speex", "Speex narrowband mode codec", NULL, 96, 8000, 
-            wr_speex_get_input_buffer_size, wr_speex_get_output_buffer_size, wr_speex_encode, wr_speex_init_codec, wr_speex_destroy_codec}, 
+            wr_speex_encoder_get_input_buffer_size, wr_speex_encoder_get_output_buffer_size, wr_speex_encode, wr_speex_encoder_init, wr_speex_encoder_destroy}, 
     {"PCMU", "ITU-T G.711 codec with u-law compression", NULL, 0, 8000, 
-            wr_g711u_get_input_buffer_size, wr_g711u_get_output_buffer_size, wr_g711u_encode, g711u_init_codec, wr_g711u_destroy_codec}, 
+            wr_g711u_encoder_get_input_buffer_size, wr_g711u_encoder_get_output_buffer_size, wr_g711u_encode, wr_g711u_encoder_init, wr_g711u_encoder_destroy}, 
 
     {NULL, NULL, NULL, 0, 0,
             NULL, NULL, NULL, NULL, NULL}

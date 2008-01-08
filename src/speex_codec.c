@@ -43,7 +43,7 @@
  * Memory for pcodec object have to be already allocated
  * @return the same pinter to wr_codec_t or NULL in case when something goes wrong 
  */
-wr_codec_t * wr_speex_init_codec(wr_codec_t * pcodec)
+wr_codec_t * wr_speex_encoder_init(wr_codec_t * pcodec)
 {
 
     speex_state * state = malloc(sizeof(speex_state));
@@ -65,16 +65,8 @@ wr_codec_t * wr_speex_init_codec(wr_codec_t * pcodec)
     state->vbr_max_bitrate = iniparser_getint(wr_options.codecs_options, "speex:vbr_max_bitrate", -1);
     #endif
 
-    pcodec->name = "speex";
-    pcodec->description = "Speex NB codec";
-    pcodec->sample_rate = 8000;
-
     pcodec->state = (void*)state;
     pcodec->payload_type = iniparser_getnonnegativeint(wr_options.codecs_options, "speex:payload_type", 96);
-    pcodec->get_input_buffer_size = &wr_speex_get_input_buffer_size;
-    pcodec->get_output_buffer_size = &wr_speex_get_output_buffer_size;
-    pcodec->encode = &wr_speex_encode;
-    pcodec->destroy = &wr_speex_destroy_codec;
    
     /* set up speex variables */
     speex_encoder_ctl(state->enc_state, SPEEX_SET_VAD, &(state->vad_enabled));
@@ -109,7 +101,7 @@ wr_codec_t * wr_speex_init_codec(wr_codec_t * pcodec)
 /**
  * Destroy object of type wr_codec_t for Speex
  */
-void wr_speex_destroy_codec(wr_codec_t * pcodec)
+void wr_speex_encoder_destroy(wr_codec_t * pcodec)
 {
     speex_state * state = (speex_state*)(pcodec->state);
     speex_encoder_destroy(state->enc_state);
@@ -126,7 +118,7 @@ void wr_speex_destroy_codec(wr_codec_t * pcodec)
  *
  * speex_get_input_buffer_size(state) * sizeof(short)
  */
-int wr_speex_get_input_buffer_size(void * state)
+int wr_speex_encoder_get_input_buffer_size(void * state)
 {
     int frame_size = 0;
     speex_state * sstate = (speex_state *)state;
@@ -140,7 +132,7 @@ int wr_speex_get_input_buffer_size(void * state)
  * function. Real data size (which always is equal or less of this one) 
  * returned by speex_encode_array
  */
-int wr_speex_get_output_buffer_size(void * state)
+int wr_speex_encoder_get_output_buffer_size(void * state)
 {
     speex_state * s = (speex_state *)state;
     /* FIXME: it's not a right way (need to use speex_bits_nbytes),

@@ -36,7 +36,7 @@
 #include "contrib/g711.h"
 #include "options.h"
 
-wr_codec_t * g711u_init_codec(wr_codec_t * pcodec)
+wr_codec_t * wr_g711u_encoder_init(wr_codec_t * pcodec)
 {
     wr_g711u_state * state = malloc(sizeof(wr_g711u_state));
     if (!state)
@@ -44,32 +44,25 @@ wr_codec_t * g711u_init_codec(wr_codec_t * pcodec)
     bzero(state, sizeof(wr_g711u_state));
     state->buffer_size = iniparser_getpositiveint(wr_options.codecs_options, "g711u:buffer_size", 640);
 
-    pcodec->name = "PCMU";
-    pcodec->sample_rate = 8000;
-    pcodec->description = "ITU-T G.711 codec with u-law compression";
     pcodec->state = (void*) state;
     pcodec->payload_type = iniparser_getnonnegativeint(wr_options.codecs_options, "g711u:payload_type", 0);
-    pcodec->get_input_buffer_size = &wr_g711u_get_input_buffer_size;
-    pcodec->get_output_buffer_size = &wr_g711u_get_output_buffer_size;
-    pcodec->encode = &wr_g711u_encode;
-    pcodec->destroy = &wr_g711u_destroy_codec;
     return pcodec;
 
 }
 
 
-void wr_g711u_destroy_codec(wr_codec_t * pcodec)
+void wr_g711u_encoder_destroy(wr_codec_t * pcodec)
 {
     free(pcodec->state);
 }
 
-int wr_g711u_get_input_buffer_size(void * state)
+int wr_g711u_encoder_get_input_buffer_size(void * state)
 {
     wr_g711u_state *  s =  (wr_g711u_state * )state;
     return s->buffer_size;
 }
 
-int wr_g711u_get_output_buffer_size(void * state)
+int wr_g711u_encoder_get_output_buffer_size(void * state)
 {
     wr_g711u_state *  s =  (wr_g711u_state * )state;
     return s->buffer_size;

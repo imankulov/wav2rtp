@@ -36,7 +36,7 @@
 #include "options.h"
 
 
-wr_codec_t * gsm_init_codec(wr_codec_t * pcodec)
+wr_codec_t * wr_gsm_encoder_init(wr_codec_t * pcodec)
 {
     wr_gsm_state * state = malloc(sizeof(wr_gsm_state));
     if (!state)
@@ -48,33 +48,26 @@ wr_codec_t * gsm_init_codec(wr_codec_t * pcodec)
         return NULL;
     }
 
-    pcodec->name = "GSM";
-    pcodec->sample_rate = 8000;
-    pcodec->description = "GSM 06.10 Full-Rate codec";
     pcodec->state = (void*) state;
     pcodec->payload_type = iniparser_getnonnegativeint(wr_options.codecs_options, "gsm:payload_type", 3);
-    pcodec->get_input_buffer_size = &wr_gsm_get_input_buffer_size;
-    pcodec->get_output_buffer_size = &wr_gsm_get_output_buffer_size;
-    pcodec->encode = &wr_gsm_encode;
-    pcodec->destroy = &wr_gsm_destroy_codec;
     return pcodec;
 
 }
 
 
-void wr_gsm_destroy_codec(wr_codec_t * pcodec)
+void wr_gsm_encoder_destroy(wr_codec_t * pcodec)
 {
     wr_gsm_state * state =  (wr_gsm_state * )(pcodec->state);
     gsm_destroy(state->handle);
     free(pcodec->state);
 }
 
-int wr_gsm_get_input_buffer_size(void * state)
+int wr_gsm_encoder_get_input_buffer_size(void * state)
 {
     return 160;
 }
 
-int wr_gsm_get_output_buffer_size(void * state)
+int wr_gsm_encoder_get_output_buffer_size(void * state)
 {
     return 33;
 }

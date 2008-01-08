@@ -43,6 +43,7 @@
 #include "dummy_filter.h"
 #include "sort_filter.h"
 #include "pcap_filter.h"
+#include "wavfile_output_filter.h"
 #include "independent_losses_filter.h"
 #include "markov_losses_filter.h"
 #include "uniform_delay_filter.h"
@@ -72,6 +73,7 @@ int main(int argc, char ** argv)
 
     wr_rtp_filter_t log_filter;
     wr_rtp_filter_t pcap_filter;
+    wr_rtp_filter_t wavfile_output_filter;
     wr_rtp_filter_t sipp_filter;
     wr_rtp_filter_t sort_filter;
 
@@ -109,6 +111,7 @@ int main(int argc, char ** argv)
     wr_rtp_filter_create(&log_filter, "log filter", &wr_log_filter_notify);
     wr_rtp_filter_create(&sipp_filter, "sipp filter", &wr_sipp_filter_notify);
     wr_rtp_filter_create(&sort_filter, "sort filter", &wr_sort_filter_notify);
+    wr_rtp_filter_create(&wavfile_output_filter, "sort filter", &wr_wavfile_output_filter_notify);
    
     wr_rtp_filter_append_observer(&wavfile_filter, &gamma_delay_filter);
     wr_rtp_filter_append_observer(&gamma_delay_filter, &uniform_delay_filter);
@@ -118,6 +121,7 @@ int main(int argc, char ** argv)
 
     wr_rtp_filter_append_observer(&independent_losses_filter, &log_filter);
     wr_rtp_filter_append_observer(&independent_losses_filter, &pcap_filter);
+    wr_rtp_filter_append_observer(&independent_losses_filter, &wavfile_output_filter);
     wr_rtp_filter_append_observer(&independent_losses_filter, &sipp_filter);
    
     wr_wavfile_filter_start(&wavfile_filter);

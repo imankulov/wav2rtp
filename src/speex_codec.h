@@ -60,10 +60,10 @@ typedef struct {
     
 } speex_state;
 
-wr_codec_t *  wr_speex_init_codec(wr_codec_t * );
-void wr_speex_destroy_codec(wr_codec_t *);
-int wr_speex_get_input_buffer_size(void * state);
-int wr_speex_get_output_buffer_size(void * state);
+wr_codec_t *  wr_speex_encoder_init(wr_codec_t * );
+void wr_speex_encoder_destroy(wr_codec_t *);
+int wr_speex_encoder_get_input_buffer_size(void * state);
+int wr_speex_encoder_get_output_buffer_size(void * state);
 int wr_speex_encode(void * state, const short * input, char * output); 
 
 #endif
