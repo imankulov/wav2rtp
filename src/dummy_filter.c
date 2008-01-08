@@ -36,7 +36,7 @@
 #include "options.h"
 
 
-wr_errorcode_t wr_dummy_filter_notify(wr_rtp_filter_t * fliter, wr_event_type_t event, wr_rtp_packet_t * packet)
+wr_errorcode_t wr_dummy_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet)
 {
     switch(event) {
         case TRANSMISSION_START:

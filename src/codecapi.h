@@ -82,4 +82,7 @@ typedef struct __wr_decoder{
 
 } wr_decoder_t;
 
+#define wr_encoder_is_initialized(c) (c->state?1:0)
+#define wr_decoder_is_initialized(c) (c->state?1:0)
+
 #endif

@@ -220,7 +220,7 @@ void wr_rtp_filter_notify_observers(wr_rtp_filter_t * filter, wr_event_type_t ev
  * Generic notify callback function (do nothing)
  * Used for example for filters which have not input subject filters (such as input wavfile filter)
  */
-wr_errorcode_t wr_do_nothing_on_notify(wr_rtp_filter_t * fliter, wr_event_type_t event, wr_rtp_packet_t * packet);
+wr_errorcode_t wr_do_nothing_on_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet);
 
 /** @} */
 

@@ -32,29 +32,38 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef PCAP_FILTER
-#define PCAP_FILTER
+#ifndef WAVFIlE_OUTPUT_FILTER
+#define WAVFILE_OUTPUT_FILTER
+#include <sndfile.h>
 #include "rtpapi.h"
-/** @defgroup pcap_filter pcap output filter method definitions
- * This is the most essential output filter - pcap filter which convert rtp packets to pcap format and store them into
+/** @defgroup wavfile_output_filter wavfile output filter method definitions
+ * This is the output filter which converts rtp packets to .wav format and store them into
  * file
  *  @{
  */
 
 
-#define TCPDUMP_MAGIC (0xa1b2c3d4)
 /** 
  * Structure to sotr internal state of the pcap output filter
  */
-typedef struct __wr_pcap_filter_state {
-    FILE * file; 
-} wr_pcap_filter_state_t;
+typedef struct __wr_wavfile_output_filter_state {
+    SF_INFO file_info;
+    SNDFILE * file; 
+    struct timeval start_time;
+    struct timeval end_time;      /**<  store the timestamp of the latest sample written to file */
+} wr_wavfile_output_filter_state_t;
+
+
+/**
+ * Seek to position given in struct timeval. If it's needed extend file by zeroes
+ */
+wr_errorcode_t wr_wavfile_seek(wr_wavfile_output_filter_state_t *, const struct timeval * );
 
 /**
  * Store data into file 
  * This method is invoked when filter is notified
  */
-wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet);
+wr_errorcode_t wr_wavfile_output_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet);
 /** @} */
 
 #endif

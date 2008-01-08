@@ -92,6 +92,7 @@ wr_decoder_t * wr_g711u_decoder_init(wr_decoder_t * pcodec)
 
     pcodec->state = (void*) state;
     pcodec->payload_type = iniparser_getnonnegativeint(wr_options.codecs_options, "g711u:payload_type", 0);
+    
     return pcodec;
 
 }

@@ -8,6 +8,7 @@ wav2rtp_SOURCES = wav2rtp.c rtpmap.c rtpmap.h options.c options.h codecapi.h \
 	rtpapi.c rtpapi.h \
 	wavfile_filter.c wavfile_filter.h \
 	pcap_filter.c pcap_filter.h \
+	wavfile_output_filter.c wavfile_output_filter.h \
 	dummy_filter.c dummy_filter.h \
 	independent_losses_filter.c independent_losses_filter.h \
 	markov_losses_filter.c markov_losses_filter.h \
