@@ -54,7 +54,7 @@ void __print_sipp_scenario(int duration)
     /* Print payload types without duplicates */
     list_iterator_start(wr_options.codec_list);
     while(list_iterator_hasnext(wr_options.codec_list)){
-        wr_codec_t * current_codec = (wr_codec_t *)list_iterator_next(wr_options.codec_list);
+        wr_encoder_t * current_codec = (wr_encoder_t *)list_iterator_next(wr_options.codec_list);
         printf("%d ", current_codec->payload_type);
         /* TODO:  check for duplicates */
     }
@@ -63,7 +63,7 @@ void __print_sipp_scenario(int duration)
 
     list_iterator_start(wr_options.codec_list);
     while(list_iterator_hasnext(wr_options.codec_list)){
-        wr_codec_t * current_codec = (wr_codec_t *)list_iterator_next(wr_options.codec_list);
+        wr_encoder_t * current_codec = (wr_encoder_t *)list_iterator_next(wr_options.codec_list);
         printf("a=rtpmap:%d %s/%d\n", current_codec->payload_type, current_codec->name, current_codec->sample_rate);
     }
     list_iterator_stop(wr_options.codec_list);
@@ -71,7 +71,7 @@ void __print_sipp_scenario(int duration)
     /*
     list_iterator_start(wr_options.codec_list);
     while(list_iterator_hasnext(wr_options.codec_list)){
-        wr_codec_t * current_codec = (wr_codec_t *)list_iterator_next(wr_options.codec_list);
+        wr_encoder_t * current_codec = (wr_encoder_t *)list_iterator_next(wr_options.codec_list);
         if (strncmp(current_codec->name, "speex", 6)==0){
             speex_state * state = (speex_state *)current_codec->state;
             printf("a=fmtp:%d mode=%d;mode=%d\n", current_codec->payload_type, state->quality, state->quality);

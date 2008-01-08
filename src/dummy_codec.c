@@ -37,7 +37,7 @@
 #include "dummy_codec.h"
 #include "options.h"
 
-wr_codec_t * wr_dummy_encoder_init(wr_codec_t * pcodec)
+wr_encoder_t * wr_dummy_encoder_init(wr_encoder_t * pcodec)
 {
     
     dummy_state * state = malloc(sizeof(dummy_state));
@@ -52,7 +52,7 @@ wr_codec_t * wr_dummy_encoder_init(wr_codec_t * pcodec)
     return pcodec;
 
 }
-void wr_dummy_encoder_destroy(wr_codec_t * pcodec)
+void wr_dummy_encoder_destroy(wr_encoder_t * pcodec)
 {
     free(pcodec->state);
 }

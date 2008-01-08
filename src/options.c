@@ -72,8 +72,8 @@ void print_usage()
 
     );
     printf("CODEC LIST:\n");
-    while(rtpmap[i].name){
-        printf("%s\t%s\n", rtpmap[i].name, rtpmap[i].description); i++;
+    while(encoder_map[i].name){
+        printf("%s\t%s\n", encoder_map[i].name, encoder_map[i].description); i++;
     }
     printf("\n");
 }
@@ -178,13 +178,6 @@ wr_errorcode_t get_options(const int argc, char * const argv[])
 }
 
 
-/**
- * Return an object wr_codec_list_t
- * Memory for entire list will be allocated in this function, you have to free it with "free_codec_list"
- * @string: a comma separated list of codecs
- * @pplist: a pointer to the first object wr_codec_list_t or pointer to NULL if nothing is found;
- * @return: 0 if allocation goes sucessfully or !=0
- */
 wr_errorcode_t get_codec_list(char * string, list_t ** pcodec_list)
 {
     list_t * codec_list;   
@@ -206,7 +199,7 @@ wr_errorcode_t get_codec_list(char * string, list_t ** pcodec_list)
 
         token = strtok_r(str, ",", &lasts);
         while(token){
-            wr_codec_t * pcodec = get_codec_by_name(token);
+            wr_encoder_t * pcodec = get_codec_by_name(token);
             if (!pcodec || !(*pcodec->init)(pcodec) ){
                 wr_set_error("Cannot found codec with given name");
                 list_destroy(codec_list);

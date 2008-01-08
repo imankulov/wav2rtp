@@ -52,15 +52,15 @@
 /**
  * Codec list
  */
-extern wr_codec_t rtpmap[];
+extern wr_encoder_t encoder_map[];
 
 /**
  * Return codec by its name or NULL if nothing is found
  */
-wr_codec_t * get_codec_by_name(const char * name);
+wr_encoder_t * get_codec_by_name(const char * name);
 
 /**
  * Return codec by its payload type (PT) or NULL if nothing is found
  */
-wr_codec_t * get_codec_by_pt(int payload_type);
+wr_encoder_t * get_codec_by_pt(int payload_type);
 #endif

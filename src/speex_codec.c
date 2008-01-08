@@ -39,11 +39,11 @@
 
 
 /**
- * Initialize object of type wr_codec_t to use with Speex.
+ * Initialize object of type wr_encoder_t to use with Speex.
  * Memory for pcodec object have to be already allocated
- * @return the same pinter to wr_codec_t or NULL in case when something goes wrong 
+ * @return the same pinter to wr_encoder_t or NULL in case when something goes wrong 
  */
-wr_codec_t * wr_speex_encoder_init(wr_codec_t * pcodec)
+wr_encoder_t * wr_speex_encoder_init(wr_encoder_t * pcodec)
 {
 
     speex_state * state = malloc(sizeof(speex_state));
@@ -99,9 +99,9 @@ wr_codec_t * wr_speex_encoder_init(wr_codec_t * pcodec)
 }
 
 /**
- * Destroy object of type wr_codec_t for Speex
+ * Destroy object of type wr_encoder_t for Speex
  */
-void wr_speex_encoder_destroy(wr_codec_t * pcodec)
+void wr_speex_encoder_destroy(wr_encoder_t * pcodec)
 {
     speex_state * state = (speex_state*)(pcodec->state);
     speex_encoder_destroy(state->enc_state);

@@ -44,8 +44,8 @@ typedef struct {
 } dummy_state;
 
 
-wr_codec_t * wr_dummy_encoder_init(wr_codec_t * pcodec);
-void wr_dummy_encoder_destroy(wr_codec_t * pcodec);
+wr_encoder_t * wr_dummy_encoder_init(wr_encoder_t * pcodec);
+void wr_dummy_encoder_destroy(wr_encoder_t * pcodec);
 int wr_dummy_encoder_get_input_buffer_size(void * state);
 int wr_dummy_encoder_get_output_buffer_size(void * state);
 int wr_dummy_encode(void * state, const short * input, char * output); 

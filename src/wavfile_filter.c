@@ -45,7 +45,7 @@ wr_errorcode_t wr_wavfile_filter_start(wr_rtp_filter_t * filter)
 
     SNDFILE * file;
     SF_INFO file_info;
-    wr_codec_t * codec;
+    wr_encoder_t * codec;
     wr_rtp_packet_t rtp_packet;
     int sequence_number = 0;
     int rtp_timestamp = 0;
@@ -71,7 +71,7 @@ wr_errorcode_t wr_wavfile_filter_start(wr_rtp_filter_t * filter)
 
     list_iterator_start(wr_options.codec_list);
     if (list_iterator_hasnext(wr_options.codec_list)){
-        codec = (wr_codec_t*)list_iterator_next(wr_options.codec_list); 
+        codec = (wr_encoder_t*)list_iterator_next(wr_options.codec_list); 
         wr_rtp_packet_init(&rtp_packet, codec->payload_type, sequence_number, 1, rtp_timestamp, packet_start_timestamp);
     }else{
         wr_set_error("no codec is found");
@@ -102,7 +102,7 @@ wr_errorcode_t wr_wavfile_filter_start(wr_rtp_filter_t * filter)
             }
             sf_seek(file, 0, SEEK_SET);
             if (list_iterator_hasnext(wr_options.codec_list)){
-                codec = (wr_codec_t*)list_iterator_next(wr_options.codec_list);
+                codec = (wr_encoder_t*)list_iterator_next(wr_options.codec_list);
             }else{
                 codec = NULL;
                 list_iterator_stop(wr_options.codec_list);

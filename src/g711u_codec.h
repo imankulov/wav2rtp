@@ -42,8 +42,8 @@ typedef struct {
 } wr_g711u_state;
 
 
-wr_codec_t * wr_g711u_encoder_init(wr_codec_t * pcodec);
-void wr_g711u_encoder_destroy(wr_codec_t * pcodec);
+wr_encoder_t * wr_g711u_encoder_init(wr_encoder_t * pcodec);
+void wr_g711u_encoder_destroy(wr_encoder_t * pcodec);
 int wr_g711u_encoder_get_input_buffer_size(void * state);
 int wr_g711u_encoder_get_output_buffer_size(void * state);
 int wr_g711u_encode(void * state, const short * input, char * output); 

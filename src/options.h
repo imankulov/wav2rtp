@@ -58,6 +58,15 @@ typedef struct __wr_options {
 wr_options_t wr_options;
 
 wr_errorcode_t get_options(const int argc, char * const argv[]);
+
+
+/**
+ * Return a list of codecs by the given string wich contains its names
+ * Memory for entire list will be allocated in this function, you have to free it with "free_codec_list"
+ * @string: a comma separated list of codecs
+ * @pcodec_list: a pointer to the object list_t
+ * @return: 0 if allocation goes sucessfully or !=0
+ */
 wr_errorcode_t get_codec_list(char *, list_t **);
 wr_errorcode_t define_option(const char *, dictionary *);
 void free_codec_list(list_t *);

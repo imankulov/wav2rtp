@@ -36,7 +36,7 @@
 
 
 
-wr_codec_t rtpmap[] = {
+wr_encoder_t encoder_map[] = {
     {"DUMMY", "Codec for testing and demo purposes", NULL, 111, 8000, 
             wr_dummy_encoder_get_input_buffer_size, wr_dummy_encoder_get_output_buffer_size, wr_dummy_encode, wr_dummy_encoder_init, wr_dummy_encoder_destroy}, 
     {"GSM", "GSM 06.10 full-rate codec", NULL, 3, 8000, 
@@ -52,11 +52,11 @@ wr_codec_t rtpmap[] = {
 
 
 
-wr_codec_t * get_codec_by_name(const char * name)
+wr_encoder_t * get_codec_by_name(const char * name)
 {
     int i=0;
-    wr_codec_t * pcodec;
-    while((pcodec = &rtpmap[i])->name){
+    wr_encoder_t * pcodec;
+    while((pcodec = &encoder_map[i])->name){
         if (strncmp(pcodec->name, name, WR_MAX_CODEC_NAME_SIZE) == 0 ){
             return pcodec;
         }
@@ -67,11 +67,11 @@ wr_codec_t * get_codec_by_name(const char * name)
 
 
 
-wr_codec_t * get_codec_by_pt(int payload_type)
+wr_encoder_t * get_codec_by_pt(int payload_type)
 {
     int i=0;
-    wr_codec_t * pcodec;
-    while((pcodec = &rtpmap[i])->name){
+    wr_encoder_t * pcodec;
+    while((pcodec = &encoder_map[i])->name){
         if (pcodec->payload_type == payload_type){
             return pcodec;
         }

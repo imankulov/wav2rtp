@@ -43,8 +43,8 @@ typedef struct {
 } wr_gsm_state;
 
 
-wr_codec_t * wr_gsm_encoder_init(wr_codec_t * pcodec);
-void wr_gsm_encoder_destroy(wr_codec_t * pcodec);
+wr_encoder_t * wr_gsm_encoder_init(wr_encoder_t * pcodec);
+void wr_gsm_encoder_destroy(wr_encoder_t * pcodec);
 int wr_gsm_encoder_get_input_buffer_size(void * state);
 int wr_gsm_encoder_get_output_buffer_size(void * state);
 int wr_gsm_encode(void * state, const short * input, char * output); 

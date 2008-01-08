@@ -44,7 +44,7 @@
 
 
 /** Codec abstraction object */
-typedef struct __wr_codec{
+typedef struct __wr_encoder{
     
     /* Members */
     char * name;        /**< name of the codec as in SDP packet */
@@ -57,9 +57,9 @@ typedef struct __wr_codec{
     int (*get_input_buffer_size)(void *);
     int (*get_output_buffer_size)(void *);
     int (*encode)(void *, const short * , char *);
-    struct __wr_codec* (*init)(struct __wr_codec *);
-    void (*destroy)(struct __wr_codec * );
+    struct __wr_encoder* (*init)(struct __wr_encoder *);
+    void (*destroy)(struct __wr_encoder * );
 
-} wr_codec_t;
+} wr_encoder_t;
 
 #endif
