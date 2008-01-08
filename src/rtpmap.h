@@ -50,17 +50,37 @@
 #define WR_MAX_CODEC_NAME_SIZE 16
 
 /**
- * Codec list
+ * Encoder list
  */
 extern wr_encoder_t encoder_map[];
 
-/**
- * Return codec by its name or NULL if nothing is found
- */
-wr_encoder_t * get_codec_by_name(const char * name);
 
 /**
- * Return codec by its payload type (PT) or NULL if nothing is found
+ * Decoder list
  */
-wr_encoder_t * get_codec_by_pt(int payload_type);
+extern wr_decoder_t decoder_map[];
+
+
+/**
+ * Return encoder by its name or NULL if nothing is found
+ */
+wr_encoder_t * get_encoder_by_name(const char * name);
+
+
+/**
+ * Return encoder by its payload type (PT) or NULL if nothing is found
+ */
+wr_encoder_t * get_encoder_by_pt(int payload_type);
+
+
+/**
+ * Return decoder by its name or NULL if nothing is found
+ */
+wr_decoder_t * get_decoder_by_name(const char * name);
+
+/**
+ * Return decoder by its payload type (PT) or NULL if nothing is found
+ */
+wr_decoder_t * get_decoder_by_pt(int payload_type);
+
 #endif

@@ -45,14 +45,20 @@ wr_encoder_t encoder_map[] = {
             wr_speex_encoder_get_input_buffer_size, wr_speex_encoder_get_output_buffer_size, wr_speex_encode, wr_speex_encoder_init, wr_speex_encoder_destroy}, 
     {"PCMU", "ITU-T G.711 codec with u-law compression", NULL, 0, 8000, 
             wr_g711u_encoder_get_input_buffer_size, wr_g711u_encoder_get_output_buffer_size, wr_g711u_encode, wr_g711u_encoder_init, wr_g711u_encoder_destroy}, 
-
     {NULL, NULL, NULL, 0, 0,
             NULL, NULL, NULL, NULL, NULL}
 };
 
 
+wr_decoder_t decoder_map[] = {
+    {"PCMU", "ITU-T G.711 codec with u-law compression", NULL, 0, 8000, 
+            wr_g711u_decoder_get_input_buffer_size, wr_g711u_decoder_get_output_buffer_size, wr_g711u_decode, wr_g711u_decoder_init, wr_g711u_decoder_destroy}, 
+    {NULL, NULL, NULL, 0, 0,
+            NULL, NULL, NULL, NULL, NULL}
+};
 
-wr_encoder_t * get_codec_by_name(const char * name)
+
+wr_encoder_t * get_encoder_by_name(const char * name)
 {
     int i=0;
     wr_encoder_t * pcodec;
@@ -67,11 +73,41 @@ wr_encoder_t * get_codec_by_name(const char * name)
 
 
 
-wr_encoder_t * get_codec_by_pt(int payload_type)
+wr_encoder_t * get_encoder_by_pt(int payload_type)
 {
     int i=0;
     wr_encoder_t * pcodec;
     while((pcodec = &encoder_map[i])->name){
+        if (pcodec->payload_type == payload_type){
+            return pcodec;
+        }
+        i++;
+    }
+    return NULL;
+}
+
+
+
+wr_decoder_t * get_decoder_by_name(const char * name)
+{
+    int i=0;
+    wr_decoder_t * pcodec;
+    while((pcodec = &decoder_map[i])->name){
+        if (strncmp(pcodec->name, name, WR_MAX_CODEC_NAME_SIZE) == 0 ){
+            return pcodec;
+        }
+        i++;
+    }
+    return NULL;
+}
+
+
+
+wr_decoder_t * get_decoder_by_pt(int payload_type)
+{
+    int i=0;
+    wr_decoder_t * pcodec;
+    while((pcodec = &decoder_map[i])->name){
         if (pcodec->payload_type == payload_type){
             return pcodec;
         }

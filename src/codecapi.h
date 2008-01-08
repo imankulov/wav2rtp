@@ -43,13 +43,13 @@
 
 
 
-/** Codec abstraction object */
+/** Encoder abstraction object */
 typedef struct __wr_encoder{
     
     /* Members */
     char * name;        /**< name of the codec as in SDP packet */
     char * description; /**< human-readable description of the codec */
-    void * state;       /**< internal state of the codec, represented for its own struct type for each type of codec */
+    void * state;       /**< internal state of the encoder, represented for its own struct type for each type of codec */
     int payload_type;   /**< default payload type for this codec */
     int sample_rate;    /**< sample-rate, used at least in SDP description of this codec */ 
 
@@ -61,5 +61,25 @@ typedef struct __wr_encoder{
     void (*destroy)(struct __wr_encoder * );
 
 } wr_encoder_t;
+
+
+/** Decoder abstraction object */
+typedef struct __wr_decoder{
+    
+    /* Members */
+    char * name;        /**< name of the codec as in SDP packet */
+    char * description; /**< human-readable description of the codec */
+    void * state;       /**< internal state of the decoder, represented for its own struct type for each type of codec */
+    int payload_type;   /**< default payload type for this codec */
+    int sample_rate;    /**< sample-rate, used at least in SDP description of this codec */ 
+
+    /* Methods */
+    int (*get_input_buffer_size)(void *);
+    int (*get_output_buffer_size)(void *);
+    int (*decode)(void *, const char * , short *);
+    struct __wr_decoder* (*init)(struct __wr_decoder *);
+    void (*destroy)(struct __wr_decoder * );
+
+} wr_decoder_t;
 
 #endif

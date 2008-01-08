@@ -37,9 +37,19 @@
 
 #include "codecapi.h"
 
+
+/**
+ * Common (encoder and decoder) G.711u state (don't use it, use instead #wr_g711u_encoder_state and
+ * #wr_g711u_decoder_state)
+ */
 typedef struct {
     int buffer_size;
 } wr_g711u_state;
+
+/** G.711u encoder internal state*/
+typedef wr_g711u_state wr_g711u_encoder_state;
+/** G.711u decoder internal state*/
+typedef wr_g711u_state wr_g711u_decoder_state;
 
 
 wr_encoder_t * wr_g711u_encoder_init(wr_encoder_t * pcodec);
@@ -47,5 +57,11 @@ void wr_g711u_encoder_destroy(wr_encoder_t * pcodec);
 int wr_g711u_encoder_get_input_buffer_size(void * state);
 int wr_g711u_encoder_get_output_buffer_size(void * state);
 int wr_g711u_encode(void * state, const short * input, char * output); 
+
+wr_decoder_t * wr_g711u_decoder_init(wr_decoder_t * pcodec);
+void wr_g711u_decoder_destroy(wr_decoder_t * pcodec);
+int wr_g711u_decoder_get_input_buffer_size(void * state);
+int wr_g711u_decoder_get_output_buffer_size(void * state);
+int wr_g711u_decode(void * state, const char * input, short * output); 
 
 #endif

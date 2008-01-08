@@ -199,7 +199,7 @@ wr_errorcode_t get_codec_list(char * string, list_t ** pcodec_list)
 
         token = strtok_r(str, ",", &lasts);
         while(token){
-            wr_encoder_t * pcodec = get_codec_by_name(token);
+            wr_encoder_t * pcodec = get_encoder_by_name(token);
             if (!pcodec || !(*pcodec->init)(pcodec) ){
                 wr_set_error("Cannot found codec with given name");
                 list_destroy(codec_list);

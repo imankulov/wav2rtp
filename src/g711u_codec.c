@@ -36,18 +36,19 @@
 #include "contrib/g711.h"
 #include "options.h"
 
+/* ENCODER */
+
 wr_encoder_t * wr_g711u_encoder_init(wr_encoder_t * pcodec)
 {
-    wr_g711u_state * state = malloc(sizeof(wr_g711u_state));
+    wr_g711u_encoder_state * state = malloc(sizeof(wr_g711u_encoder_state));
     if (!state)
         return NULL;
-    bzero(state, sizeof(wr_g711u_state));
+    bzero(state, sizeof(wr_g711u_encoder_state));
     state->buffer_size = iniparser_getpositiveint(wr_options.codecs_options, "g711u:buffer_size", 640);
 
     pcodec->state = (void*) state;
     pcodec->payload_type = iniparser_getnonnegativeint(wr_options.codecs_options, "g711u:payload_type", 0);
     return pcodec;
-
 }
 
 
@@ -58,22 +59,67 @@ void wr_g711u_encoder_destroy(wr_encoder_t * pcodec)
 
 int wr_g711u_encoder_get_input_buffer_size(void * state)
 {
-    wr_g711u_state *  s =  (wr_g711u_state * )state;
+    wr_g711u_encoder_state *  s =  (wr_g711u_encoder_state * )state;
     return s->buffer_size;
 }
 
 int wr_g711u_encoder_get_output_buffer_size(void * state)
 {
-    wr_g711u_state *  s =  (wr_g711u_state * )state;
+    wr_g711u_encoder_state *  s =  (wr_g711u_encoder_state * )state;
     return s->buffer_size;
 }
 
 int wr_g711u_encode(void * state, const short * input, char * output) 
 {
     int i = 0;
-    wr_g711u_state *  s =  (wr_g711u_state * )state;
+    wr_g711u_encoder_state *  s =  (wr_g711u_encoder_state * )state;
     for (i=0; i < s->buffer_size; i++){
         output[i] = (char)linear2ulaw((int)(input[i]));
+    }    
+    return s->buffer_size;
+} 
+
+
+/* DECODER */
+
+wr_decoder_t * wr_g711u_decoder_init(wr_decoder_t * pcodec)
+{
+    wr_g711u_decoder_state * state = malloc(sizeof(wr_g711u_decoder_state));
+    if (!state)
+        return NULL;
+    bzero(state, sizeof(wr_g711u_decoder_state));
+    state->buffer_size = iniparser_getpositiveint(wr_options.codecs_options, "g711u:buffer_size", 640);
+
+    pcodec->state = (void*) state;
+    pcodec->payload_type = iniparser_getnonnegativeint(wr_options.codecs_options, "g711u:payload_type", 0);
+    return pcodec;
+
+}
+
+
+void wr_g711u_decoder_destroy(wr_decoder_t * pcodec)
+{
+    free(pcodec->state);
+}
+
+int wr_g711u_decoder_get_input_buffer_size(void * state)
+{
+    wr_g711u_decoder_state *  s =  (wr_g711u_decoder_state * )state;
+    return s->buffer_size;
+}
+
+int wr_g711u_decoder_get_output_buffer_size(void * state)
+{
+    wr_g711u_decoder_state *  s =  (wr_g711u_decoder_state * )state;
+    return s->buffer_size;
+}
+
+int wr_g711u_decode(void * state, const char * input, short * output) 
+{
+    int i = 0;
+    wr_g711u_decoder_state *  s =  (wr_g711u_decoder_state * )state;
+    for (i=0; i < s->buffer_size; i++){
+        output[i] = (short)ulaw2linear((int)(input[i]));
     }    
     return s->buffer_size;
 } 
