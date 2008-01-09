@@ -110,11 +110,14 @@ int wr_speex_encoder_get_input_buffer_size(void * state)
 
 int wr_speex_encoder_get_output_buffer_size(void * state)
 {
-    /* FIXME: This returns the size of the input buffer */
+    /* FIXME: This returns wittingly larger than needed size of the output buffer */
+    /*
     int frame_size = 0;
     speex_encoder_state * s = (speex_encoder_state *)state;
     speex_encoder_ctl(s->enc_state, SPEEX_GET_FRAME_SIZE, &frame_size);
     return frame_size;
+    */
+    return 600;
 
 }
 int wr_speex_encode(void * state, const short * input, char * output)
@@ -153,11 +156,14 @@ void wr_speex_decoder_destroy(wr_decoder_t * pcodec)
 
 int wr_speex_decoder_get_input_buffer_size(void * state)
 {
-    /* FIXME: This returns the size of the output buffer */
+    /* FIXME: This returns wittingly larger than needed size of the output buffer */
+    /*
     int frame_size = 0;
     speex_decoder_state * s = (speex_decoder_state *)state;
     speex_decoder_ctl(s->dec_state, SPEEX_GET_FRAME_SIZE, &frame_size);
     return frame_size;
+    */
+    return 600;
 }
 
 
