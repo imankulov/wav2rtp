@@ -51,6 +51,8 @@ wr_encoder_t encoder_map[] = {
 
 
 wr_decoder_t decoder_map[] = {
+    {"speex", "Speex narrowband mode codec", NULL, 96, 8000, 
+            wr_speex_encoder_get_input_buffer_size, wr_speex_encoder_get_output_buffer_size, wr_speex_decode, wr_speex_decoder_init, wr_speex_decoder_destroy},
     {"PCMU", "ITU-T G.711 codec with u-law compression", NULL, 0, 8000, 
             wr_g711u_decoder_get_input_buffer_size, wr_g711u_decoder_get_output_buffer_size, wr_g711u_decode, wr_g711u_decoder_init, wr_g711u_decoder_destroy}, 
     {NULL, NULL, NULL, 0, 0,

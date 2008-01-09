@@ -76,7 +76,7 @@ typedef struct __wr_decoder{
     /* Methods */
     int (*get_input_buffer_size)(void *);
     int (*get_output_buffer_size)(void *);
-    int (*decode)(void *, const char * , short *);
+    int (*decode)(void * state, const char * input, size_t input_size, short * output);
     struct __wr_decoder* (*init)(struct __wr_decoder *);
     void (*destroy)(struct __wr_decoder * );
 

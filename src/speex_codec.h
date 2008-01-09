@@ -38,7 +38,7 @@
 #include <speex/speex.h>
 #include "codecapi.h"
 
-/** Speex codec object */
+/** Speex encoder  object */
 typedef struct {
 
     /* Speex state */
@@ -58,12 +58,62 @@ typedef struct {
     int vbr_max_bitrate;/**< max bitrate with VBR enabled */
     #endif
     
-} speex_state;
+} speex_encoder_state;
 
+
+/** Speex encoder  object */
+typedef struct {
+    SpeexBits bits;     /**< speex bit-packing struct  */
+    void * dec_state;   /**< speex decoder state */
+} speex_decoder_state;
+
+
+/**
+ * Initialize object of type wr_encoder_t to use with Speex.
+ * Memory for pcodec object have to be already allocated
+ * @return the same pinter to wr_encoder_t or NULL in case when something goes wrong 
+ */
 wr_encoder_t *  wr_speex_encoder_init(wr_encoder_t * );
+
+
+/**
+ * Destroy object of type wr_encoder_t for Speex
+ */
 void wr_speex_encoder_destroy(wr_encoder_t *);
+
+
+/**
+ * Size of the input array for codec.
+ *
+ * This function returns the size of the input array which will be used on the next
+ * encoding  iteration. Note that this value may be changed from one cycle step
+ * to another. Note also that because every codec receive data in the format of
+ * the array of shorts, real size of needed memory (passed to .alloc function)
+ * will be: 
+ *
+ * speex_get_input_buffer_size(state) * sizeof(short)
+ */
 int wr_speex_encoder_get_input_buffer_size(void * state);
+
+
+/**
+ * Size of the output buffer 
+ * This size is sufficient to write all data, encoded with speex_encode_array()
+ * function. Real data size (which always is equal or less of this one) 
+ * returned by speex_encode_array
+ */
 int wr_speex_encoder_get_output_buffer_size(void * state);
+
+
+/**
+ * Do encoding of the one data frame
+ */
 int wr_speex_encode(void * state, const short * input, char * output); 
+
+wr_decoder_t *  wr_speex_decoder_init(wr_decoder_t * );
+void wr_speex_decoder_destroy(wr_decoder_t *);
+int wr_speex_decoder_get_input_buffer_size(void * state);
+int wr_speex_decoder_get_output_buffer_size(void * state);
+int wr_speex_decode(void * state, const char * input, size_t input_size, short * output); 
 
 #endif

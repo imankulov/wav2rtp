@@ -62,6 +62,6 @@ wr_decoder_t * wr_g711u_decoder_init(wr_decoder_t * pcodec);
 void wr_g711u_decoder_destroy(wr_decoder_t * pcodec);
 int wr_g711u_decoder_get_input_buffer_size(void * state);
 int wr_g711u_decoder_get_output_buffer_size(void * state);
-int wr_g711u_decode(void * state, const char * input, short * output); 
+int wr_g711u_decode(void * state, const char * input, size_t, short * output); 
 
 #endif

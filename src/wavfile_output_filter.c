@@ -110,7 +110,7 @@ wr_errorcode_t wr_wavfile_output_filter_notify(wr_rtp_filter_t * filter, wr_even
                     wr_data_frame_t * frame = (wr_data_frame_t * ) list_iterator_next(&packet->data_frames);
                     int output_size = decoder->get_output_buffer_size(decoder->state);
                     short * output  =  calloc(output_size, sizeof(short));
-                    decoder->decode(decoder->state, frame->data, output);
+                    decoder->decode(decoder->state, frame->data, frame->size, output);
                     sf_write_short(state->file, output, output_size);
                     timeval_increment(&state->end_time, frame->length_in_ms * 1000);
                     free(output);

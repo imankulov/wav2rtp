@@ -115,12 +115,12 @@ int wr_g711u_decoder_get_output_buffer_size(void * state)
     return s->buffer_size;
 }
 
-int wr_g711u_decode(void * state, const char * input, short * output) 
+int wr_g711u_decode(void * state, const char * input, size_t size, short * output) 
 {
     int i = 0;
     wr_g711u_decoder_state *  s =  (wr_g711u_decoder_state * )state;
-    for (i=0; i < s->buffer_size; i++){
+    for (i=0; i < size; i++){
         output[i] = (short)ulaw2linear((int)(input[i]));
     }    
-    return s->buffer_size;
+    return size;
 } 

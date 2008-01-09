@@ -38,15 +38,10 @@
 
 
 
-/**
- * Initialize object of type wr_encoder_t to use with Speex.
- * Memory for pcodec object have to be already allocated
- * @return the same pinter to wr_encoder_t or NULL in case when something goes wrong 
- */
 wr_encoder_t * wr_speex_encoder_init(wr_encoder_t * pcodec)
 {
 
-    speex_state * state = malloc(sizeof(speex_state));
+    speex_encoder_state * state = malloc(sizeof(speex_encoder_state));
     if (!state)
         return NULL;
 
@@ -98,59 +93,86 @@ wr_encoder_t * wr_speex_encoder_init(wr_encoder_t * pcodec)
     return pcodec;
 }
 
-/**
- * Destroy object of type wr_encoder_t for Speex
- */
 void wr_speex_encoder_destroy(wr_encoder_t * pcodec)
 {
-    speex_state * state = (speex_state*)(pcodec->state);
+    speex_encoder_state * state = (speex_encoder_state*)(pcodec->state);
     speex_encoder_destroy(state->enc_state);
     free(pcodec->state);
 }
 
-/**
- * Size of the input array for codec
- * This function return size of the input array which will be used on the next
- * encoding  iteration. Note that this value may be changed from one cycle step
- * to another. Note also that because every codec receive data in the format of
- * the array of shorts, real size of needed memory (passed to .alloc function)
- * will be: 
- *
- * speex_get_input_buffer_size(state) * sizeof(short)
- */
 int wr_speex_encoder_get_input_buffer_size(void * state)
 {
     int frame_size = 0;
-    speex_state * sstate = (speex_state *)state;
+    speex_encoder_state * sstate = (speex_encoder_state *)state;
     speex_encoder_ctl(sstate->enc_state, SPEEX_GET_FRAME_SIZE, &frame_size);
     return frame_size;
 }
 
-/**
- * Size of the output buffer 
- * This size is sufficient to write all data, encoded with speex_encode_array()
- * function. Real data size (which always is equal or less of this one) 
- * returned by speex_encode_array
- */
 int wr_speex_encoder_get_output_buffer_size(void * state)
 {
-    speex_state * s = (speex_state *)state;
-    /* FIXME: it's not a right way (need to use speex_bits_nbytes),
-       but I don't know why  speex_bits_nbytes always returns 0 */
+    /* FIXME: This returns the size of the input buffer */
     int frame_size = 0;
     speex_encoder_ctl(s->enc_state, SPEEX_GET_FRAME_SIZE, &frame_size);
     return frame_size;
-    /* return speex_bits_nbytes(&(s->bits)); */
+
 }
-/**
- * Do encoding of the one data frame
- */
 int wr_speex_encode(void * state, const short * input, char * output)
 {
-        int speex_bytes = 0; //     Number of bytes which actually were be written out      
-        speex_state * sstate = (speex_state *)state;
+        int speex_bytes = 0;
+        speex_encoder_state * sstate = (speex_encoder_state *)state;
         speex_bits_reset(&(sstate->bits));
         speex_encode_int(sstate->enc_state, (short*)input, &(sstate->bits));
         speex_bytes = speex_bits_write(&(sstate->bits), output, speex_bits_nbytes(&(sstate->bits)));
+        return speex_bytes; 
+}
+
+
+wr_decoder_t * wr_speex_decoder_init(wr_decoder_t * pcodec)
+{
+    speex_decoder_state * state = malloc(sizeof(speex_decoder_state));
+    if (!state)
+        return NULL;
+
+    speex_bits_init(&(state->bits));
+    state->dec_state = speex_decoder_init(&speex_nb_mode);
+
+    pcodec->state = (void*)state;
+    pcodec->payload_type = iniparser_getnonnegativeint(wr_options.codecs_options, "speex:payload_type", 96);
+    return pcodec;
+}
+
+
+void wr_speex_decoder_destroy(wr_decoder_t * pcodec)
+{
+    speex_decoder_state * state = (speex_decoder_state*)(pcodec->state);
+    speex_decoder_destroy(state->dec_state);
+    free(pcodec->state);
+}
+
+
+int wr_speex_decoder_get_input_buffer_size(void * state)
+{
+    /* FIXME: This returns the size of the output buffer */
+    int frame_size = 0;
+    speex_encoder_ctl(s->enc_state, SPEEX_GET_FRAME_SIZE, &frame_size);
+    return frame_size;
+}
+
+
+int wr_speex_decoder_get_output_buffer_size(void * state)
+{
+    int frame_size = 0;
+    speex_decoder_state * sstate = (speex_decoder_state *)state;
+    speex_decoder_ctl(sstate->dec_state, SPEEX_GET_FRAME_SIZE, &frame_size);
+    return frame_size;
+}
+
+
+int wr_speex_decode(void * state, const char * input, size_t input_size, short * output)
+{
+        int speex_bytes = 0;
+        speex_decoder_state * sstate = (speex_decoder_state *)state;
+        speex_bits_read_from(&(sstate->bits), (char*)input, input_size);
+        speex_bytes = speex_decode_int(sstate->dec_state, &(sstate->bits), output); 
         return speex_bytes; 
 }
