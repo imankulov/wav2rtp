@@ -12,9 +12,10 @@ AC_CONFIG_HEADER([config.h])
 AC_PROG_CC
 
 # Checks for libraries.
-AC_CHECK_LIB([gsm], [gsm_create])
-AC_CHECK_LIB([sndfile], [sf_open])
-AC_CHECK_LIB([speex], [speex_encoder_init])
+AC_CHECK_LIB([gsm], [gsm_create], ,AC_MSG_ERROR([Cannot find gsm library]))
+AC_CHECK_LIB([sndfile], [sf_open], ,AC_MSG_ERROR([Cannot find sndfile library]))
+AC_CHECK_LIB([speex], [speex_encoder_init], ,AC_MSG_ERROR([Cannot find speex library]))
+AC_CHECK_LIB([pcap], [pcap_next], ,AC_MSG_ERROR([Cannot find pcap library]))
 
 # Checks for header files.
 AC_HEADER_STDC
