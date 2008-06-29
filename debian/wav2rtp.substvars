@@ -1,0 +1,1 @@
+shlibs:Depends=libc6 (>= 2.3.6-6), libgsm1 (>= 1.0.10), libpcap0.7, libsndfile1, libspeex1 (>= 1.1.8)
