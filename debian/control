@@ -2,12 +2,12 @@ Source: wav2rtp
 Section: science
 Priority: optional
 Maintainer: Roman Imankulov <imankuloff@users.sourceforge.net>
-Build-Depends: debhelper (>= 5), autotools-dev, libspeex-dev (>=1.1), libortp5-dev (>=1.5), libgsm1-dev (>=1.0), libsndfile1-dev (>=1.0), libpcap0.7-dev
+Build-Depends: debhelper (>= 5), autotools-dev, libspeex-dev (>=1.1), libgsm1-dev (>=1.0), libsndfile1-dev (>=1.0), libpcap0.7-dev|libpcap0.8-dev
 Standards-Version: 3.7.2
 
 Package: wav2rtp
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libspeex1 (>=1.1), libortp5 (>=1.5), libgsm1 (>=1.0), libsndfile1 (>=1.0), libpcap0.7
+Depends: ${shlibs:Depends}, ${misc:Depends}, libspeex1 (>=1.1), libgsm1 (>=1.0), libsndfile1 (>=1.0), libpcap0.7|libpcap0.8
 Suggests: sipp-tester
 Description: Tool to generate RTP data and save it into pcap or wav file
  wav2rtp is a simple tool intended to convert speech data from wav files to RTP
