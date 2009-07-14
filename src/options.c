@@ -79,7 +79,8 @@ void print_usage()
 }
 
 
-wr_errorcode_t get_options(const int argc, char * const argv[])
+wr_errorcode_t get_options(const int argc, char * const argv[],
+        const char * codecs_conf, const char * output_conf)
 {
     int c;
     extern char *optarg;
@@ -99,18 +100,22 @@ wr_errorcode_t get_options(const int argc, char * const argv[])
         {0, 0, 0, 0},
     };
 
-    bzero(&wr_options, sizeof(wr_options_t));    
+    bzero(&wr_options, sizeof(wr_options_t));
 
-    wr_options.codecs_options = iniparser_new(CONFDIR "/codecs.conf");
+    wr_options.codecs_options = iniparser_new(
+            codecs_conf ? (char *)codecs_conf : CONFDIR "/codecs.conf");
     if (!wr_options.codecs_options){
-        wr_set_error("Cannot load or parse file with codec options: " CONFDIR "/codecs.conf");
-        return WR_FATAL; 
+        wr_set_error("Cannot load or parse file with codec options "
+                "(default location is " CONFDIR  "/codecs.conf)");
+        return WR_FATAL;
     }
 
-    wr_options.output_options = iniparser_new(CONFDIR "/output.conf");
+    wr_options.output_options = iniparser_new(
+            output_conf ? (char *)output_conf : CONFDIR "/output.conf");
     if (!wr_options.codecs_options){
-        wr_set_error("Cannot load or parse file with output options: " CONFDIR "/output.conf");
-        return WR_FATAL; 
+        wr_set_error("Cannot load or parse file with output options "
+                "(default location is " CONFDIR "/output.conf)");
+        return WR_FATAL;
     }
 
     while(1){
@@ -163,7 +168,7 @@ wr_errorcode_t get_options(const int argc, char * const argv[])
     }
     if (hlp || !(cset && fset)){
         print_usage();
-        wr_set_error("not enought input arguments");
+        wr_set_error("not enough of input arguments");
         return WR_FATAL;
     }
     if (!wr_options.output_filename){

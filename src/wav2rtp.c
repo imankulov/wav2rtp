@@ -80,7 +80,7 @@ int main(int argc, char ** argv)
     wr_errorcode_t retval;
 
     /* parse options */
-    retval = get_options(argc, argv);
+    retval = get_options(argc, argv, NULL, NULL);
     if (retval == WR_FATAL){
         fprintf(stderr, "FATAL ERROR: %s\n", wr_error);
         return retval;
