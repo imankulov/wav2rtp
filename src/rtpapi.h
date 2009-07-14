@@ -51,10 +51,10 @@
  *  @{
  */
 
+#pragma pack(1)
 /**
  * RTP header given from ortp 
  */
-
 typedef struct __wr_rtp_header
 {
 #ifdef WORDS_BIGENDIAN
@@ -77,7 +77,7 @@ typedef struct __wr_rtp_header
 	uint32_t ssrc;
 	uint32_t csrc[16];
 } wr_rtp_header_t;
-
+#pragma pack()
 
 
 
