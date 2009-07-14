@@ -1,5 +1,5 @@
 bin_PROGRAMS = wav2rtp
-wav2rtp_SOURCES = wav2rtp.c rtpmap.c rtpmap.h options.c options.h codecapi.h \
+common_sources = rtpmap.c rtpmap.h options.c options.h codecapi.h \
 	speex_codec.c speex_codec.h dummy_codec.c dummy_codec.h  gsm_codec.c gsm_codec.h  g711u_codec.c g711u_codec.h \
 	contrib/g711.c contrib/g711.h contrib/in_cksum.c contrib/in_cksum.h error_types.h \
 	contrib/iniparser.c  contrib/iniparser.h \
@@ -19,6 +19,13 @@ wav2rtp_SOURCES = wav2rtp.c rtpmap.c rtpmap.h options.c options.h codecapi.h \
 	sort_filter.c sort_filter.h \
 	misc.c misc.h
 
+wav2rtp_SOURCES = wav2rtp.c $(common_sources)
+
 bin_SCRIPTS = wav2rtp-testcall.sh
 EXTRA_DIST = $(bin_SCRIPTS)
 wav2rtp_LDADD = @LIBOBJS@
+TESTS = pcap_test
+check_PROGRAMS = $(TESTS)
+EXTRA_DIST += $(TESTS) 
+CLEANFILES = testdata/empty_test.pcap testdata/one_packet_test.pcap
+pcap_test_SOURCES = pcap_test.c $(common_sources)

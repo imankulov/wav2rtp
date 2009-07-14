@@ -44,7 +44,7 @@
 
 #define TCPDUMP_MAGIC (0xa1b2c3d4)
 /** 
- * Structure to sotr internal state of the pcap output filter
+ * Structure to store internal state of the pcap output filter
  */
 typedef struct __wr_pcap_filter_state {
     FILE * file; 
