@@ -55,6 +55,28 @@ typedef struct __wr_pcap_filter_state {
  * This method is invoked when filter is notified
  */
 wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet);
+
+
+/**
+ * Pcap timeval
+ */
+struct wr_pcap_timeval {
+    int32_t tv_sec;       /*< seconds */
+    int32_t tv_usec;      /*< microseconds */
+};
+
+
+/**
+ * Pcap packet header.
+ */
+struct wr_pcap_pkthdr {
+    struct wr_pcap_timeval ts; 	/*< time stamp */
+    uint32_t caplen;     	/*< length of portion present */
+    uint32_t len;        	/*< length this packet (off wire) */
+};
+
+#define wr_pcap_timeval_copy(pcap_tv, tv) \
+	{ (pcap_tv)->tv_sec=(tv)->tv_sec; (pcap_tv)->tv_usec=(tv)->tv_usec; }
 /** @} */
 
 #endif

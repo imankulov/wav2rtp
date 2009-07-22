@@ -152,7 +152,7 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
         case NEW_PACKET:
             {
                 wr_errorcode_t retval;
-                struct pcap_pkthdr ph;
+                struct wr_pcap_pkthdr ph;
                 struct ether_header e_header;
                 struct iphdr ip_header;
                 struct udphdr udp_header;
@@ -200,7 +200,7 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
 
                 ip_header.check = 0;
                 ip_header.check = in_cksum(iphdr_vec, 1);
-                timeval_copy(&(ph.ts), &(packet->lowlevel_timestamp));
+                wr_pcap_timeval_copy(&(ph.ts), &(packet->lowlevel_timestamp));
                 ph.len = ph.caplen;
 
                 {
