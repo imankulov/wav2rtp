@@ -1,7 +1,7 @@
 /*
  * $Id$
  * 
- * Copyright (c) 2007, R.Imankulov
+ * Copyright (c) 2010, R.Imankulov, Yu Jiang
  *
  * All rights reserved.
  *
@@ -45,6 +45,8 @@ wr_encoder_t encoder_map[] = {
             wr_speex_encoder_get_input_buffer_size, wr_speex_encoder_get_output_buffer_size, wr_speex_encode, wr_speex_encoder_init, wr_speex_encoder_destroy}, 
     {"PCMU", "ITU-T G.711 codec with u-law compression", NULL, 0, 8000, 
             wr_g711u_encoder_get_input_buffer_size, wr_g711u_encoder_get_output_buffer_size, wr_g711u_encode, wr_g711u_encoder_init, wr_g711u_encoder_destroy}, 
+    {"PCMA", "ITU-T G.711 codec with a-law compression", NULL, 8, 8000, 
+            wr_g711a_encoder_get_input_buffer_size, wr_g711a_encoder_get_output_buffer_size, wr_g711a_encode, wr_g711a_encoder_init, wr_g711a_encoder_destroy}, 
     {NULL, NULL, NULL, 0, 0,
             NULL, NULL, NULL, NULL, NULL}
 };
@@ -55,6 +57,9 @@ wr_decoder_t decoder_map[] = {
             wr_speex_encoder_get_input_buffer_size, wr_speex_encoder_get_output_buffer_size, wr_speex_decode, wr_speex_decoder_init, wr_speex_decoder_destroy},
     {"PCMU", "ITU-T G.711 codec with u-law compression", NULL, 0, 8000, 
             wr_g711u_decoder_get_input_buffer_size, wr_g711u_decoder_get_output_buffer_size, wr_g711u_decode, wr_g711u_decoder_init, wr_g711u_decoder_destroy}, 
+    {"PCMA", "ITU-T G.711 codec with a-law compression", NULL, 8, 8000, 
+            wr_g711a_decoder_get_input_buffer_size, wr_g711a_decoder_get_output_buffer_size, wr_g711a_decode, wr_g711a_decoder_init, wr_g711a_decoder_destroy}, 
+
     {NULL, NULL, NULL, 0, 0,
             NULL, NULL, NULL, NULL, NULL}
 };
