@@ -1,7 +1,7 @@
 /*
  * $Id$
  * 
- * Copyright (c) 2007, R.Imankulov
+ * Copyright (c) 20010, R.Imankulov, Yu Jiang
  *
  * All rights reserved.
  *
@@ -135,7 +135,7 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
                 fh.version_minor = PCAP_VERSION_MINOR;
                 fh.thiszone = timezone;
                 fh.sigfigs = 0;
-                fh.snaplen = 0xFFFFFFFF;
+                fh.snaplen = 0x0000FFFF;
                 fh.linktype = DLT_EN10MB; 
                 len = fwrite(&fh, sizeof(fh), 1, state->file);
                 if (len < 1){
