@@ -1,0 +1,15 @@
+/aclocal.m4
+/autom4te.cache
+/config.*
+/configure
+/depcomp
+/install-sh
+/missing
+/src/.deps/
+/src/wav2rtp
+/stamp-h1
+
+Makefile
+Makefile.in
+
+*.o
