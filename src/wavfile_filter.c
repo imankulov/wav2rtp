@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2007, R.Imankulov
  *
  * All rights reserved.
@@ -32,7 +32,7 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <sndfile.h> 
+#include <sndfile.h>
 #include "rtpapi.h"
 #include "codecapi.h"
 #include "wavfile_filter.h"
@@ -65,13 +65,15 @@ wr_errorcode_t wr_wavfile_filter_start(wr_rtp_filter_t * filter)
         return WR_FATAL;
     }
     if (file_info.samplerate != 8000){
-        wr_set_error("this tool works only with .wav files in 8kHz, rerecord your signal or resample it (with sox for example)\n");
-        return WR_FATAL; 
+        wr_set_error("this tool works only with .wav files in 8kHz, rerecord "
+                     "your signal or resample it (with sox, for example; like "
+                     "'sox input.wav -r8000 resampled.wav')\n" );
+        return WR_FATAL;
     }
 
     list_iterator_start(wr_options.codec_list);
     if (list_iterator_hasnext(wr_options.codec_list)){
-        codec = (wr_encoder_t*)list_iterator_next(wr_options.codec_list); 
+        codec = (wr_encoder_t*)list_iterator_next(wr_options.codec_list);
         wr_rtp_packet_init(&rtp_packet, codec->payload_type, sequence_number, 1, rtp_timestamp, packet_start_timestamp);
     }else{
         wr_set_error("no codec is found");
@@ -83,7 +85,7 @@ wr_errorcode_t wr_wavfile_filter_start(wr_rtp_filter_t * filter)
     /* One cycle iteration encode one data frame */
     while(codec){
         int   input_buffer_size = (*codec->get_input_buffer_size)(codec->state);
-        int   output_buffer_size = (*codec->get_output_buffer_size)(codec->state); 
+        int   output_buffer_size = (*codec->get_output_buffer_size)(codec->state);
         short input_buffer[input_buffer_size];
         char output_buffer[output_buffer_size];
 
@@ -122,7 +124,8 @@ wr_errorcode_t wr_wavfile_filter_start(wr_rtp_filter_t * filter)
             timeval_copy(&packet_start_timestamp, &packet_end_timestamp);
             wr_rtp_packet_init(&rtp_packet, codec->payload_type, sequence_number, 0, rtp_timestamp, packet_start_timestamp);
         }
-    }   
+    }
     wr_rtp_filter_notify_observers(filter, TRANSMISSION_END, NULL);
     sf_close(file);
+    return WR_OK;
 }

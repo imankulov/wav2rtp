@@ -1,10 +1,27 @@
 WAV2RTP
 
 Wav2rtp is a simple testing tool to generate RTP data packets and send it via netwok
-interface  or save into pcap file. 
+interface  or save into pcap file.
 
 This tool primarily intended for use with SIPp application to test speech
 quality with different codecs.
 
 See latest information about it in the main project site:
 http://wav2rtp.sourceforge.net
+
+Debian Installation
+---------------------
+
+Install required packages as dependencies
+
+$ sudo apt-get install libortp-dev libsndfile1-dev libspeex-dev libpcap-dev libgsm1-dev
+
+Then run initialization, configuration and complation jobs
+
+$ ./init.sh && ./configure --prefix=/opt/wav2rtp  && make
+
+Then install the utility with
+
+$ sudo make install
+
+It will be installed in /opt/wav2rtp directory, you can safely remove it any time

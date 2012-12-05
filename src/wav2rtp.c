@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2007, R.Imankulov
  *
  * All rights reserved.
@@ -33,7 +33,7 @@
  *
  */
 #include <string.h>
-#include <sndfile.h> 
+#include <sndfile.h>
 
 #include "options.h"
 #include "error_types.h"
@@ -112,7 +112,7 @@ int main(int argc, char ** argv)
     wr_rtp_filter_create(&sipp_filter, "sipp filter", &wr_sipp_filter_notify);
     wr_rtp_filter_create(&sort_filter, "sort filter", &wr_sort_filter_notify);
     wr_rtp_filter_create(&wavfile_output_filter, "sort filter", &wr_wavfile_output_filter_notify);
-   
+
     wr_rtp_filter_append_observer(&wavfile_filter, &gamma_delay_filter);
     wr_rtp_filter_append_observer(&gamma_delay_filter, &uniform_delay_filter);
     wr_rtp_filter_append_observer(&uniform_delay_filter, &sort_filter);
@@ -123,8 +123,10 @@ int main(int argc, char ** argv)
     wr_rtp_filter_append_observer(&independent_losses_filter, &pcap_filter);
     wr_rtp_filter_append_observer(&independent_losses_filter, &wavfile_output_filter);
     wr_rtp_filter_append_observer(&independent_losses_filter, &sipp_filter);
-   
-    wr_wavfile_filter_start(&wavfile_filter);
 
-    return 0; 
+    retval = wr_wavfile_filter_start(&wavfile_filter);
+    if (retval != WR_OK) {
+        wr_print_error();
+    }
+    return retval;
 }
