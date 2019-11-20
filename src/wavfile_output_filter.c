@@ -32,6 +32,7 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+#include "misc.h"
 #include "options.h"
 #include "rtpmap.h"
 #include "wavfile_output_filter.h"

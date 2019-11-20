@@ -34,7 +34,13 @@
  */
 #ifndef __GSM_CODEC_H
 #define __GSM_CODEC_H
+
+#include "config.h"
+#if HAVE_GSM_H
+#include <gsm.h>
+#else
 #include <gsm/gsm.h>
+#endif
 
 #include "codecapi.h"
 

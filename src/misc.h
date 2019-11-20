@@ -35,6 +35,8 @@
 #ifndef __WR_MISC_H
 #define __WR_MISC_H
 
+#include <sys/time.h>
+
 /** @defgroup misc miscellaneous
  *  Miscellaneous helper functions 
  *  @{

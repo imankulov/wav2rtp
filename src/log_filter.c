@@ -68,12 +68,12 @@ wr_errorcode_t wr_log_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t ev
                     timersub(&state->prev_timestamp, &packet->lowlevel_timestamp, &timediff);
                     diffsign = '-';
                 }
-                snprintf(diff, 256, "%c%ld.%06ld", diffsign, timediff.tv_sec, timediff.tv_usec);
+                snprintf(diff, 256, "%c%ld.%06ld", diffsign, timediff.tv_sec, (long)timediff.tv_usec);
             }
             
             printf("%ld.%06ld\t%s\t%d\t%d\t%d\n", 
                 packet->lowlevel_timestamp.tv_sec, 
-                packet->lowlevel_timestamp.tv_usec, 
+                (long)packet->lowlevel_timestamp.tv_usec, 
                 diff, 
                 packet->sequence_number,
                 packet->rtp_timestamp, 

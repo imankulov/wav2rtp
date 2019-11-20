@@ -38,6 +38,8 @@
 #include "options.h"
 #include "error_types.h"
 
+#include "contrib/ranlib/ranlib.h"
+#include "misc.h"
 #include "rtpapi.h"
 #include "wavfile_filter.h"
 #include "dummy_filter.h"

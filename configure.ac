@@ -12,6 +12,7 @@ AC_CONFIG_HEADER([config.h])
 AC_PROG_CC
 
 # Checks for libraries.
+AC_CHECK_LIB([m], [pow], ,AC_MSG_ERROR([Cannot find math library]))
 AC_CHECK_LIB([gsm], [gsm_create], ,AC_MSG_ERROR([Cannot find gsm library]))
 AC_CHECK_LIB([sndfile], [sf_open], ,AC_MSG_ERROR([Cannot find sndfile library]))
 AC_CHECK_LIB([speex], [speex_encoder_init], ,AC_MSG_ERROR([Cannot find speex library]))
@@ -19,7 +20,7 @@ AC_CHECK_LIB([pcap], [pcap_next], ,AC_MSG_ERROR([Cannot find pcap library]))
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h stdlib.h string.h strings.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([arpa/inet.h stdlib.h string.h strings.h sys/time.h unistd.h gsm.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
