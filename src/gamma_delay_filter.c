@@ -33,6 +33,7 @@
  *
  */
 #include "contrib/ranlib/ranlib.h"
+#include "misc.h"
 #include "gamma_delay_filter.h"
 
 

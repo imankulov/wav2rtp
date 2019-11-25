@@ -36,7 +36,13 @@
 #include <net/ethernet.h>
 #include <netinet/ip.h>
 #include <netinet/udp.h>
+#if defined (__linux__)
 #include <netinet/ether.h> /* ether_aton_r */
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <net/ethernet.h>
+#endif
 #include <arpa/inet.h>
 #include <pcap.h>
 
@@ -44,47 +50,52 @@
 #include "pcap_filter.h"
 #include "options.h"
 
+#ifdef __linux__
+#ifndef _DEFAULT_SOURCE
+#define _DEFAULT_SOURCE 1
+#endif
+#endif
 
 wr_errorcode_t __init_ether_header(struct ether_header * e)
 {
-    struct ether_addr tmp_addr;
+    struct ether_addr *tmp_addr;
 
     bzero(e, sizeof(*e));
     e->ether_type =  htons(0x0800);  /* ethertype IP */
 
-    if (!ether_aton_r(iniparser_getstring(wr_options.output_options,  "global:dst_mac", "DE:AD:BE:EF:DE:AD"), &tmp_addr)){
+    if (!(tmp_addr = ether_aton(iniparser_getstring(wr_options.output_options,  "global:dst_mac", "DE:AD:BE:EF:DE:AD")))){
         wr_set_error("Cannot parse destination ethernet address from config");
         return WR_FATAL;
     }
-    memcpy(e->ether_dhost, tmp_addr.ether_addr_octet, 6);
+    memcpy(e->ether_dhost, tmp_addr->ether_addr_octet, 6);
 
-    if (!ether_aton_r(iniparser_getstring(wr_options.output_options,  "global:src_mac", "AA:BB:CC:DD:EE:FF"), &tmp_addr)){
+    if (!(tmp_addr = ether_aton(iniparser_getstring(wr_options.output_options,  "global:src_mac", "AA:BB:CC:DD:EE:FF")))){
         wr_set_error("Cannot parse source ethernet address from config");
         return WR_FATAL;
     }
-    memcpy(e->ether_shost, tmp_addr.ether_addr_octet, 6);
+    memcpy(e->ether_shost, tmp_addr->ether_addr_octet, 6);
     return WR_OK;
 }
 
 
-wr_errorcode_t __init_ip_header(struct iphdr * ip_header)
+wr_errorcode_t __init_ip_header(struct ip * ip_header)
 {
     bzero(ip_header, sizeof(*ip_header));
-    ip_header->version = 4;
-    ip_header->ihl = 5;
-    ip_header->tos = 0x00;
-    ip_header->id = 0x0000;
-    ip_header->frag_off = 0x0000;             
-    ip_header->ttl = 64; 
-    ip_header->protocol = SOL_UDP;  /* UDP */
+    ip_header->ip_v = 4;
+    ip_header->ip_hl = 5;
+    ip_header->ip_tos = 0x00;
+    ip_header->ip_id = 0x0000;
+    ip_header->ip_off = 0x0000;             
+    ip_header->ip_ttl = 64; 
+    ip_header->ip_p = IPPROTO_UDP;  /* UDP */
 
-    ip_header->saddr = inet_addr(iniparser_getstring(wr_options.output_options, "global:src_ip", "127.0.0.1"));    
-    if (ip_header->saddr == -1){
+    ip_header->ip_src.s_addr = inet_addr(iniparser_getstring(wr_options.output_options, "global:src_ip", "127.0.0.1"));    
+    if (ip_header->ip_src.s_addr == -1){
         wr_set_error("Cannot parse source IP address from config");
         return WR_FATAL;
     }
-    ip_header->daddr = inet_addr(iniparser_getstring(wr_options.output_options, "global:dst_ip", "127.0.0.2"));
-    if (ip_header->daddr == -1){
+    ip_header->ip_dst.s_addr = inet_addr(iniparser_getstring(wr_options.output_options, "global:dst_ip", "127.0.0.2"));
+    if (ip_header->ip_dst.s_addr == -1){
         wr_set_error("Cannot parse destination IP address from config");
         return WR_FATAL;
     }
@@ -95,9 +106,15 @@ wr_errorcode_t __init_ip_header(struct iphdr * ip_header)
 wr_errorcode_t __init_udp_header(struct udphdr * udp_header)
 {
     bzero(udp_header, sizeof(*udp_header));
+#ifdef __linux__
     udp_header->source = htons((short)iniparser_getnonnegativeint(wr_options.output_options,  "global:src_port", 8001));
     udp_header->dest = htons((short)iniparser_getnonnegativeint(wr_options.output_options, "global:dst_port", 8002));
     udp_header->check = 0;
+#else
+    udp_header->uh_sport = htons((short)iniparser_getnonnegativeint(wr_options.output_options,  "global:src_port", 8001));
+    udp_header->uh_dport = htons((short)iniparser_getnonnegativeint(wr_options.output_options, "global:dst_port", 8002));
+    udp_header->uh_sum = 0;
+#endif
     return WR_OK;
 }
 
@@ -154,13 +171,13 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
                 wr_errorcode_t retval;
                 struct wr_pcap_pkthdr ph;
                 struct ether_header e_header;
-                struct iphdr ip_header;
+                struct ip ip_header;
                 struct udphdr udp_header;
                 wr_rtp_header_t rtp_header;
                 vec_t iphdr_vec[] = { /* to count an IP checksum */
                     {
-                        ptr: (unsigned char *)&ip_header,
-                        len: sizeof(ip_header),
+                        .ptr = (unsigned char *)&ip_header,
+                        .len = sizeof(ip_header),
                     },
                 };
                 if ((retval=__init_ether_header(&e_header)) != WR_OK){
@@ -180,26 +197,37 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
                 rtp_header.seq_number = htons(packet->sequence_number);
                 rtp_header.timestamp = htonl(packet->rtp_timestamp);
 
-                ip_header.tot_len = sizeof(ip_header)  + 
-                                    sizeof(udp_header) +                                   
-                                    sizeof(rtp_header) - sizeof(rtp_header.csrc);
-                ph.caplen = sizeof(e_header) + ip_header.tot_len;
+                ip_header.ip_len = sizeof(ip_header)  + 
+                                   sizeof(udp_header) +                                   
+                                   sizeof(rtp_header) - sizeof(rtp_header.csrc);
+                ph.caplen = sizeof(e_header) + ip_header.ip_len;
+#ifdef __linux__
                 udp_header.len = sizeof(udp_header) + sizeof(rtp_header) - sizeof(rtp_header.csrc);
-            
+#else
+                udp_header.uh_ulen = sizeof(udp_header) + sizeof(rtp_header) - sizeof(rtp_header.csrc);
+#endif
                 list_iterator_start(&(packet->data_frames));
                 while(list_iterator_hasnext(&(packet->data_frames))){
                     wr_data_frame_t * current_data = list_iterator_next(&(packet->data_frames));
-                    ip_header.tot_len += current_data->size;
+                    ip_header.ip_len += current_data->size;
+#ifdef __linux__
                     udp_header.len += current_data->size;
+#else
+                    udp_header.uh_ulen += current_data->size;
+#endif
                     ph.caplen += current_data->size;
                 }
                 list_iterator_stop(&(packet->data_frames));
 
-                ip_header.tot_len = htons(ip_header.tot_len);
+                ip_header.ip_len = htons(ip_header.ip_len);
+#ifdef __linux__
                 udp_header.len = htons(udp_header.len);
+#else
+                udp_header.uh_ulen = htons(udp_header.uh_ulen);
+#endif
 
-                ip_header.check = 0;
-                ip_header.check = in_cksum(iphdr_vec, 1);
+                ip_header.ip_sum = 0;
+                ip_header.ip_sum = in_cksum(iphdr_vec, 1);
                 wr_pcap_timeval_copy(&(ph.ts), &(packet->lowlevel_timestamp));
                 ph.len = ph.caplen;
 

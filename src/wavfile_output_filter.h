@@ -32,7 +32,7 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef WAVFIlE_OUTPUT_FILTER
+#ifndef WAVFILE_OUTPUT_FILTER
 #define WAVFILE_OUTPUT_FILTER
 #include <sndfile.h>
 #include "rtpapi.h"

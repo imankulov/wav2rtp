@@ -46,6 +46,7 @@ int wr_rtp_packet_init(wr_rtp_packet_t * rtp_packet, int payload_type, int seque
     rtp_packet->lowlevel_timestamp.tv_usec = lowlevel_timestamp.tv_usec;
     rtp_packet->markbit = markbit;
     list_init(&rtp_packet->data_frames);
+    return 0;
 }
 
 
@@ -104,6 +105,7 @@ wr_errorcode_t wr_rtp_packet_add_frame(wr_rtp_packet_t * packet, uint8_t * data,
 int wr_rtp_packet_delete_frame(wr_rtp_packet_t * packet, int position)
 {
     /* XXX: Not yet implemented */
+    return 0;
 }
 
 void wr_rtp_filter_create(wr_rtp_filter_t * filter, char *name, 
@@ -157,4 +159,5 @@ void wr_rtp_filter_notify_observers(wr_rtp_filter_t * filter, wr_event_type_t ev
 wr_errorcode_t wr_do_nothing_on_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet)
 {
     /* Do nothing ;-) */
+    return WR_OK;
 }
