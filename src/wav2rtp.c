@@ -58,6 +58,7 @@
 #include "gsm_codec.h"
 #include "g711u_codec.h"
 
+char wr_error[2048];
 
 
 

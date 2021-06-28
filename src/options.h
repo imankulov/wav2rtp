@@ -55,7 +55,7 @@ typedef struct __wr_options {
 } wr_options_t;
 
 /** global application options */
-wr_options_t wr_options;
+extern wr_options_t wr_options;
 
 /**
  * Load options from config command line and configuration files

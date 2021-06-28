@@ -43,6 +43,7 @@
 #include <string.h>
 #include <getopt.h>
 
+wr_options_t wr_options;
 
 void print_usage()
 {

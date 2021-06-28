@@ -60,7 +60,7 @@ typedef enum __wr_errorcode {
 
 
 /** String which contains error descritions when something goes wrong  */
-char wr_error[2048];
+extern char wr_error[2048];
 
 /**
  * Set error description
