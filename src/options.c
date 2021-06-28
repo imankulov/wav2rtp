@@ -113,7 +113,7 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
 
     wr_options.output_options = iniparser_new(
             output_conf ? output_conf : CONFDIR "/output.conf");
-    if (!wr_options.codecs_options){
+    if (!wr_options.output_options){
         wr_set_error("Cannot load or parse file with output options "
                 "(default location is " CONFDIR "/output.conf)");
         return WR_FATAL;
