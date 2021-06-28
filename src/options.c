@@ -100,7 +100,7 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
         {0, 0, 0, 0},
     };
 
-    bzero(&wr_options, sizeof(wr_options_t));
+    memset(&wr_options, 0, sizeof(wr_options_t));
 
     wr_options.codecs_options = iniparser_new(
             codecs_conf ? (char *)codecs_conf : CONFDIR "/codecs.conf");
@@ -199,7 +199,7 @@ wr_errorcode_t get_codec_list(char * string, list_t ** pcodec_list)
             wr_set_error("size of list of codec is larger than 1023 symbols"); 
             return WR_FATAL;        
         }       
-        bzero(str, sizeof(str));
+        memset(str, 0, sizeof(str));
         strncpy(str, string, sizeof(str)-2);
 
         token = strtok_r(str, ",", &lasts);

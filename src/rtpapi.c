@@ -112,7 +112,7 @@ void wr_rtp_filter_create(wr_rtp_filter_t * filter, char *name,
         wr_errorcode_t (*notify)(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet) 
     )
 {
-    bzero(filter, sizeof(wr_rtp_filter_t));
+    memset(filter, 0, sizeof(wr_rtp_filter_t));
     strncpy(filter->name, name, sizeof(filter->name)-1);
     filter->notify = notify;
 }

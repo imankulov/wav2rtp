@@ -31,7 +31,7 @@ AC_C_BIGENDIAN
 
 # Checks for library functions.
 # AC_FUNC_MALLOC
-AC_CHECK_FUNCS([bzero gettimeofday strchr])
+AC_CHECK_FUNCS([gettimeofday strchr])
 
 # Additional definitions
 if test "x${prefix}" = "xNONE"; then
