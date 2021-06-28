@@ -51,15 +51,15 @@ wr_errorcode_t wr_independent_losses_filter_notify(wr_rtp_filter_t * filter, wr_
             return WR_OK;
         }
         case NEW_PACKET: {
-            double rand;
+            double rand_val;
             wr_independent_losses_filter_state_t * state = (wr_independent_losses_filter_state_t * ) (filter->state);
             if (!state->enabled){
                 wr_rtp_filter_notify_observers(filter, event, packet);
                 return WR_OK;
             }
             int lost;
-            rand = (double) random() / RAND_MAX;
-            lost = (rand < state->loss_rate) ? 1 : 0;
+            rand_val = (double) rand() / RAND_MAX;
+            lost = (rand_val < state->loss_rate) ? 1 : 0;
             if (!lost){
                 wr_rtp_filter_notify_observers(filter, event, packet);
             }

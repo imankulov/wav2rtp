@@ -96,8 +96,8 @@ int main(int argc, char ** argv)
         struct timeval tv;
         gettimeofday(&tv, NULL);
         memcpy(&seed, &tv, sizeof(seed));
-        srandom(seed);
-        setall(random(), random());
+        srand(seed);
+        setall(rand(), rand());
     }
 
     wr_rtp_filter_create(&wavfile_filter, "input wav file filter", &wr_do_nothing_on_notify);

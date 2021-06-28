@@ -524,7 +524,7 @@ int list_sort(list_t *l, int versus) {
 
     if (l->numels <= 1)
         return 0;
-    srandom(time(NULL)*time(NULL));
+    srand(time(NULL)*time(NULL));
     list_sort_quicksort(l, versus, 0, l->head_sentinel->next, l->numels-1, l->tail_sentinel->prev);
     assert(list_repOk(l));
     return 0;
@@ -593,7 +593,7 @@ static void list_sort_quicksort(list_t *l, int versus,
     /* base of iteration: one element list */
     if (! (last > first)) return;
 
-    pivotid = (random() % (last - first + 1));
+    pivotid = (rand() % (last - first + 1));
     /* pivotid = (last - first + 1) / 2; */
 
     /* find pivot */
