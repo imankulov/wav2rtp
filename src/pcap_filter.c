@@ -33,6 +33,9 @@
  *
  */
 #include <stdio.h>
+#ifdef _WIN32
+#include "wincompat.h"
+#else
 #include <net/ethernet.h>
 #include <netinet/ip.h>
 #include <netinet/udp.h>
@@ -44,6 +47,7 @@
 #include <net/ethernet.h>
 #endif
 #include <arpa/inet.h>
+#endif
 #include <pcap.h>
 
 #include "contrib/in_cksum.h"

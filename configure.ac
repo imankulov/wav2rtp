@@ -21,6 +21,8 @@ AC_CHECK_LIB([pcap], [pcap_next], ,AC_MSG_ERROR([Cannot find pcap library]))
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h stdlib.h string.h strings.h sys/time.h unistd.h gsm.h])
 
+AC_CHECK_HEADER([winsock2.h], [LIBS="-lws2_32 $LIBS"])
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_TYPE_UINT32_T

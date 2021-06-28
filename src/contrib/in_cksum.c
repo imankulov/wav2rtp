@@ -35,8 +35,15 @@
  *
  *	@(#)in_cksum.c	8.1 (Berkeley) 6/10/93
  */
-#include <arpa/inet.h>
 
+#include "config.h"
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#elif _WIN32
+#include <winsock2.h>
+#endif
+
+#include <sys/types.h>
 #include "in_cksum.h"
 
 /*
