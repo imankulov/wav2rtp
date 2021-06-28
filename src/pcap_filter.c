@@ -136,7 +136,7 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
                 struct pcap_file_header fh;
                 size_t len;
                 wr_pcap_filter_state_t * state = calloc(1, sizeof(wr_pcap_filter_state_t)); 
-                state->file = fopen(wr_options.output_filename, "w");
+                state->file = fopen(wr_options.output_filename, "wb");
                 if (!state->file){
                     free(state);
                     filter->state = NULL;

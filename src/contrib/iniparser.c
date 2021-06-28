@@ -936,7 +936,7 @@ dictionary * iniparser_new(const char *ininame)
     FILE    *   ini ;
     int         lineno ;
 
-    if ((ini=fopen(ininame, "r"))==NULL) {
+    if ((ini=fopen(ininame, "rb"))==NULL) {
         return NULL ;
     }
 
