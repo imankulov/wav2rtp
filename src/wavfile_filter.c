@@ -89,8 +89,8 @@ wr_errorcode_t wr_wavfile_filter_start(wr_rtp_filter_t * filter)
         short input_buffer[input_buffer_size];
         char output_buffer[output_buffer_size];
 
-        bzero(input_buffer, input_buffer_size);
-        bzero(output_buffer, output_buffer_size);
+        memset(input_buffer, 0, input_buffer_size);
+        memset(output_buffer, 0, output_buffer_size);
 
         input_buffer_size = sf_read_short(file, input_buffer, input_buffer_size);
         if (!input_buffer_size){ /*EOF*/

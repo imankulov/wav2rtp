@@ -57,7 +57,7 @@ wr_errorcode_t wr_markov_losses_filter_notify(wr_rtp_filter_t * filter, wr_event
             return WR_OK;
         }
         case NEW_PACKET: {
-            double rand;
+            double rand_val;
             wr_markov_losses_filter_state_t * state = (wr_markov_losses_filter_state_t * ) (filter->state);
             if (!state->enabled){
                 wr_rtp_filter_notify_observers(filter, event, packet);
@@ -65,8 +65,8 @@ wr_errorcode_t wr_markov_losses_filter_notify(wr_rtp_filter_t * filter, wr_event
             }
             double threshold =  (state->prev_lost) ? state->loss_1_1 : state->loss_0_1;
             int lost;
-            rand = (double) random() / RAND_MAX;
-            state->prev_lost = (rand < threshold) ? 1 : 0;
+            rand_val = (double) rand() / RAND_MAX;
+            state->prev_lost = (rand_val < threshold) ? 1 : 0;
             if (!state->prev_lost){
                 wr_rtp_filter_notify_observers(filter, event, packet);
             }

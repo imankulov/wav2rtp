@@ -1,13 +1,16 @@
 /aclocal.m4
 /autom4te.cache
+/compile
 /config.*
 /configure
+/*~
 /depcomp
 /install-sh
 /missing
 /src/.deps/
 /src/wav2rtp
 /stamp-h1
+/test-driver
 
 Makefile
 Makefile.in

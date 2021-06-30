@@ -9,12 +9,16 @@ quality with different codecs.
 See latest information about it in the main project site:
 http://wav2rtp.sourceforge.net
 
-Debian Installation
----------------------
+Debian/MSYS2 Installation
+-------------------------
 
 Install required packages as dependencies
 
+Debian:
 $ sudo apt-get install libortp-dev libsndfile1-dev libspeex-dev libpcap-dev libgsm1-dev
+
+MSYS2 (MinGW):
+$ pacman -S $MINGW_PACKAGE_PREFIX-gsm $MINGW_PACKAGE_PREFIX-libsndfile $MINGW_PACKAGE_PREFIX-speex $MINGW_PACKAGE_PREFIX-libpcap
 
 Then run initialization, configuration and complation jobs
 

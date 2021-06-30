@@ -33,6 +33,9 @@
  *
  */
 #include <stdio.h>
+#ifdef _WIN32
+#include "wincompat.h"
+#else
 #include <net/ethernet.h>
 #include <netinet/ip.h>
 #include <netinet/udp.h>
@@ -44,6 +47,7 @@
 #include <net/ethernet.h>
 #endif
 #include <arpa/inet.h>
+#endif
 #include <pcap.h>
 
 #include "contrib/in_cksum.h"
@@ -60,7 +64,7 @@ wr_errorcode_t __init_ether_header(struct ether_header * e)
 {
     struct ether_addr *tmp_addr;
 
-    bzero(e, sizeof(*e));
+    memset(e, 0, sizeof(*e));
     e->ether_type =  htons(0x0800);  /* ethertype IP */
 
     if (!(tmp_addr = ether_aton(iniparser_getstring(wr_options.output_options,  "global:dst_mac", "DE:AD:BE:EF:DE:AD")))){
@@ -80,7 +84,7 @@ wr_errorcode_t __init_ether_header(struct ether_header * e)
 
 wr_errorcode_t __init_ip_header(struct ip * ip_header)
 {
-    bzero(ip_header, sizeof(*ip_header));
+    memset(ip_header, 0, sizeof(*ip_header));
     ip_header->ip_v = 4;
     ip_header->ip_hl = 5;
     ip_header->ip_tos = 0x00;
@@ -105,22 +109,16 @@ wr_errorcode_t __init_ip_header(struct ip * ip_header)
 
 wr_errorcode_t __init_udp_header(struct udphdr * udp_header)
 {
-    bzero(udp_header, sizeof(*udp_header));
-#ifdef __linux__
-    udp_header->source = htons((short)iniparser_getnonnegativeint(wr_options.output_options,  "global:src_port", 8001));
-    udp_header->dest = htons((short)iniparser_getnonnegativeint(wr_options.output_options, "global:dst_port", 8002));
-    udp_header->check = 0;
-#else
+    memset(udp_header, 0, sizeof(*udp_header));
     udp_header->uh_sport = htons((short)iniparser_getnonnegativeint(wr_options.output_options,  "global:src_port", 8001));
     udp_header->uh_dport = htons((short)iniparser_getnonnegativeint(wr_options.output_options, "global:dst_port", 8002));
     udp_header->uh_sum = 0;
-#endif
     return WR_OK;
 }
 
 wr_errorcode_t __init_rtp_header(wr_rtp_header_t * rtp_header)
 {
-    bzero(rtp_header, sizeof(*rtp_header));
+    memset(rtp_header, 0, sizeof(*rtp_header));
     rtp_header->version = 2;
     rtp_header->padbit = 0;
     rtp_header->extbit = 0;
@@ -138,7 +136,7 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
                 struct pcap_file_header fh;
                 size_t len;
                 wr_pcap_filter_state_t * state = calloc(1, sizeof(wr_pcap_filter_state_t)); 
-                state->file = fopen(wr_options.output_filename, "w");
+                state->file = fopen(wr_options.output_filename, "wb");
                 if (!state->file){
                     free(state);
                     filter->state = NULL;
@@ -146,7 +144,7 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
                     return WR_FATAL;
                 }
                 /* Write a header */
-                bzero(&fh, sizeof(fh));
+                memset(&fh, 0, sizeof(fh));
                 fh.magic = TCPDUMP_MAGIC;
                 fh.version_major = PCAP_VERSION_MAJOR;
                 fh.version_minor = PCAP_VERSION_MINOR;
@@ -201,30 +199,18 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
                                    sizeof(udp_header) +                                   
                                    sizeof(rtp_header) - sizeof(rtp_header.csrc);
                 ph.caplen = sizeof(e_header) + ip_header.ip_len;
-#ifdef __linux__
-                udp_header.len = sizeof(udp_header) + sizeof(rtp_header) - sizeof(rtp_header.csrc);
-#else
                 udp_header.uh_ulen = sizeof(udp_header) + sizeof(rtp_header) - sizeof(rtp_header.csrc);
-#endif
                 list_iterator_start(&(packet->data_frames));
                 while(list_iterator_hasnext(&(packet->data_frames))){
                     wr_data_frame_t * current_data = list_iterator_next(&(packet->data_frames));
                     ip_header.ip_len += current_data->size;
-#ifdef __linux__
-                    udp_header.len += current_data->size;
-#else
                     udp_header.uh_ulen += current_data->size;
-#endif
                     ph.caplen += current_data->size;
                 }
                 list_iterator_stop(&(packet->data_frames));
 
                 ip_header.ip_len = htons(ip_header.ip_len);
-#ifdef __linux__
-                udp_header.len = htons(udp_header.len);
-#else
                 udp_header.uh_ulen = htons(udp_header.uh_ulen);
-#endif
 
                 ip_header.ip_sum = 0;
                 ip_header.ip_sum = in_cksum(iphdr_vec, 1);

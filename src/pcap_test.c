@@ -11,12 +11,12 @@ wr_errorcode_t files_are_equals(const char *filename1, const char *filename2,
     char buf1[bufsize];
     char buf2[bufsize];
     size_t sz1, sz2;
-    fd1 = fopen(filename1, "r");
+    fd1 = fopen(filename1, "rb");
     if (!fd1){
         wr_set_error("first file is not found");
         return WR_FATAL;
     }
-    fd2 = fopen(filename2, "r");
+    fd2 = fopen(filename2, "rb");
     if (!fd2){
         wr_set_error("second file is not found");
         return WR_FATAL;

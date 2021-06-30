@@ -58,8 +58,19 @@
 #include "gsm_codec.h"
 #include "g711u_codec.h"
 
+char wr_error[2048];
 
-
+#ifdef _WIN32
+void timersub(const struct timeval *a, const struct timeval *b, struct timeval *res)
+{
+    res->tv_sec = (a)->tv_sec - (b)->tv_sec;
+    res->tv_usec = (a)->tv_usec - (b)->tv_usec;
+    if (res->tv_usec < 0) {
+        --res->tv_sec;
+        res->tv_usec += 1000000;
+    }
+}
+#endif
 
 int main(int argc, char ** argv)
 {
@@ -96,8 +107,8 @@ int main(int argc, char ** argv)
         struct timeval tv;
         gettimeofday(&tv, NULL);
         memcpy(&seed, &tv, sizeof(seed));
-        srandom(seed);
-        setall(random(), random());
+        srand(seed);
+        setall(rand(), rand());
     }
 
     wr_rtp_filter_create(&wavfile_filter, "input wav file filter", &wr_do_nothing_on_notify);

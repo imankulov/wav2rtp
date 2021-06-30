@@ -59,6 +59,10 @@ void timeval_increment(struct timeval * tv, int us);
  */
 void timeval_copy(struct timeval * dst, const struct timeval * src);
 
+#ifdef _WIN32
+void timersub(const struct timeval *a, const struct timeval *b, struct timeval *res);
+#endif
+
 #endif
 
 /** @} */

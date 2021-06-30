@@ -925,7 +925,7 @@ void iniparser_unset(dictionary * ini, char * entry)
  */
 /*--------------------------------------------------------------------------*/
 
-dictionary * iniparser_new(char *ininame)
+dictionary * iniparser_new(const char *ininame)
 {
     dictionary  *   d ;
     char        lin[ASCIILINESZ+1];
@@ -936,7 +936,7 @@ dictionary * iniparser_new(char *ininame)
     FILE    *   ini ;
     int         lineno ;
 
-    if ((ini=fopen(ininame, "r"))==NULL) {
+    if ((ini=fopen(ininame, "rb"))==NULL) {
         return NULL ;
     }
 

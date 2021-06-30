@@ -35,8 +35,15 @@
  *
  *	@(#)in_cksum.c	8.1 (Berkeley) 6/10/93
  */
-#include <arpa/inet.h>
 
+#include "config.h"
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#elif _WIN32
+#include <winsock2.h>
+#endif
+
+#include <sys/types.h>
 #include "in_cksum.h"
 
 /*
@@ -88,7 +95,7 @@ in_cksum(const vec_t *vec, int veclen)
 		/*
 		 * Force to even boundary.
 		 */
-		if ((1 & (unsigned long) w) && (mlen > 0)) {
+		if ((1 & (size_t) w) && (mlen > 0)) {
 			REDUCE;
 			sum <<= 8;
 			s_util.c[0] = *(const unsigned char *)w;

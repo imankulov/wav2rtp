@@ -49,7 +49,7 @@ wr_errorcode_t wr_wavfile_seek(wr_wavfile_output_filter_state_t * state, const s
         timersub(tv, &state->end_time, &tv_offset); 
         offset = (int)((tv_offset.tv_sec * 1e6 + tv_offset.tv_usec) * state->file_info.samplerate / 1e6);
         data = calloc(offset, sizeof(short));
-        bzero(data, sizeof(offset * sizeof(short)));
+        memset(data, 0, sizeof(offset * sizeof(short)));
         sf_seek(state->file, 0, SEEK_END);
         sf_write_short(state->file, data, offset);
         memcpy(&state->end_time, tv, sizeof(struct timeval));

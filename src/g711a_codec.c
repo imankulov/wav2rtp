@@ -43,7 +43,7 @@ wr_encoder_t * wr_g711a_encoder_init(wr_encoder_t * pcodec)
     wr_g711a_encoder_state * state = malloc(sizeof(wr_g711a_encoder_state));
     if (!state)
         return NULL;
-    bzero(state, sizeof(wr_g711a_encoder_state));
+    memset(state, 0, sizeof(wr_g711a_encoder_state));
     state->buffer_size = iniparser_getpositiveint(wr_options.codecs_options, "g711a:buffer_size", 640);
 
     pcodec->state = (void*) state;
@@ -87,7 +87,7 @@ wr_decoder_t * wr_g711a_decoder_init(wr_decoder_t * pcodec)
     wr_g711a_decoder_state * state = malloc(sizeof(wr_g711a_decoder_state));
     if (!state)
         return NULL;
-    bzero(state, sizeof(wr_g711a_decoder_state));
+    memset(state, 0, sizeof(wr_g711a_decoder_state));
     state->buffer_size = iniparser_getpositiveint(wr_options.codecs_options, "g711a:buffer_size", 640);
 
     pcodec->state = (void*) state;
