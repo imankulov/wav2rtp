@@ -43,6 +43,10 @@
 void __print_sipp_scenario(int duration)
 {
 
+    if (list_empty(wr_options.codec_list)){
+        fprintf(stderr, "Codec list must be provided for sipp\n");
+        return;
+    }
     printf("***sdp_data_packet***\n"); 
     printf(
         "v=0\n"

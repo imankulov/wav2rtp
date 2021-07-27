@@ -89,7 +89,7 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
     int c;
     extern char *optarg;
     extern int optind, optopt;
-    int hlp = 0, cset = 0, fset=0, version=0;
+    int hlp = 0, fset=0, version=0;
     char * chr; 
     char * codec_list = NULL;
     const char * confdir = CONFDIR;
@@ -193,12 +193,12 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
     if (version){
         return WR_STOP;
     }
-    if (need_define_codec_list){
-        if (get_codec_list(codec_list, &wr_options.codec_list) == 0)
-            cset ++;
-        free(codec_list);
+    if (get_codec_list(codec_list, &wr_options.codec_list) != WR_OK){
+        return WR_FATAL;
     }
-    if (hlp || !(cset && fset)){
+    if (codec_list)
+        free(codec_list);
+    if (hlp || !fset){
         print_usage(confdir);
         wr_set_error("not enough of input arguments");
         return WR_FATAL;
@@ -222,6 +222,7 @@ wr_errorcode_t get_codec_list(char * string, list_t ** pcodec_list)
         codec_list = malloc(sizeof(list_t));
         list_init(codec_list);
     }
+    if (string)
     {
         char str[1024];
         char * token = NULL;
@@ -247,9 +248,9 @@ wr_errorcode_t get_codec_list(char * string, list_t ** pcodec_list)
             /* Next iteration */
             token = strtok_r(NULL, ",", &lasts);
         }  
-        (*pcodec_list) = codec_list;
-        return WR_OK;
     }
+    (*pcodec_list) = codec_list;
+    return WR_OK;
 }
 
 
