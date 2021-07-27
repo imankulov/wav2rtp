@@ -116,17 +116,6 @@ wr_errorcode_t __init_udp_header(struct udphdr * udp_header)
     return WR_OK;
 }
 
-wr_errorcode_t __init_rtp_header(wr_rtp_header_t * rtp_header)
-{
-    memset(rtp_header, 0, sizeof(*rtp_header));
-    rtp_header->version = 2;
-    rtp_header->padbit = 0;
-    rtp_header->extbit = 0;
-    rtp_header->cc = 0;
-    rtp_header->ssrc = 0x12011A0C; /* XXX: This should be random */
-    return WR_OK;
-}
-
 wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t event, wr_rtp_packet_t * packet)
 {
 
@@ -187,13 +176,7 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
                 if ((retval=__init_udp_header(&udp_header)) != WR_OK){
                     return retval;
                 }
-                if ((retval=__init_rtp_header(&rtp_header)) != WR_OK){
-                    return retval;
-                }
-                rtp_header.markbit = packet->markbit;
-                rtp_header.paytype = packet->payload_type; 
-                rtp_header.seq_number = htons(packet->sequence_number);
-                rtp_header.timestamp = htonl(packet->rtp_timestamp);
+                wr_rtp_header_init(&rtp_header, packet);
 
                 ip_header.ip_len = sizeof(ip_header)  + 
                                    sizeof(udp_header) +                                   

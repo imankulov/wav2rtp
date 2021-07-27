@@ -79,7 +79,6 @@ typedef struct __wr_rtp_header
 #pragma pack()
 
 
-
 /**
  * RTP data packet which contains link to the set of rtp data frames 
  */
@@ -102,6 +101,11 @@ typedef struct __wr_data_frame {
     uint8_t * data;                /**< pointer to the data */
 } wr_data_frame_t;
 
+
+/**
+ * initialize rtp header
+ */
+void wr_rtp_header_init(wr_rtp_header_t * rtp_header, wr_rtp_packet_t * rtp_packet);
 
 /** 
  * initialize rtp packet

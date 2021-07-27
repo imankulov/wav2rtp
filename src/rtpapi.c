@@ -34,7 +34,27 @@
  */
 #include "rtpapi.h"
 #include "contrib/simclist.h"
+#ifdef _WIN32
+#include "wincompat.h"
+#else
+#include <arpa/inet.h>
+#endif
 
+
+
+void wr_rtp_header_init(wr_rtp_header_t * rtp_header, wr_rtp_packet_t * rtp_packet)
+{
+    memset(rtp_header, 0, sizeof(*rtp_header));
+    rtp_header->version = 2;
+    rtp_header->padbit = 0;
+    rtp_header->extbit = 0;
+    rtp_header->cc = 0;
+    rtp_header->ssrc = 0x12011A0C; /* XXX: This should be random */
+    rtp_header->markbit = rtp_packet->markbit;
+    rtp_header->paytype = rtp_packet->payload_type;
+    rtp_header->seq_number = htons(rtp_packet->sequence_number);
+    rtp_header->timestamp = htonl(rtp_packet->rtp_timestamp);
+}
 
 
 int wr_rtp_packet_init(wr_rtp_packet_t * rtp_packet, int payload_type, int sequence_number, int markbit, uint32_t rtp_timestamp, struct timeval lowlevel_timestamp)
