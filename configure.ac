@@ -1,12 +1,12 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.61)
-AC_INIT(wav2rtp, 0.9.3)
+AC_PREREQ([2.71])
+AC_INIT([wav2rtp],[0.9.3])
 AM_INIT_AUTOMAKE
 
 AC_CONFIG_SRCDIR([src/wav2rtp.c])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
@@ -19,19 +19,19 @@ AC_CHECK_LIB([speex], [speex_encoder_init], ,AC_MSG_ERROR([Cannot find speex lib
 AC_CHECK_LIB([pcap], [pcap_next], ,AC_MSG_ERROR([Cannot find pcap library]))
 
 # Checks for header files.
-AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h stdlib.h string.h strings.h sys/time.h unistd.h gsm.h])
+
+AC_CHECK_HEADER([winsock2.h], [LIBS="-lws2_32 $LIBS"])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
-AC_HEADER_TIME
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
 AC_C_BIGENDIAN
 
 # Checks for library functions.
 # AC_FUNC_MALLOC
-AC_CHECK_FUNCS([bzero gettimeofday strchr])
+AC_CHECK_FUNCS([gettimeofday strchr])
 
 # Additional definitions
 if test "x${prefix}" = "xNONE"; then

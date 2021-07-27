@@ -1,3 +1,4 @@
+AUTOMAKE_OPTIONS = subdir-objects
 bin_PROGRAMS = wav2rtp
 common_sources = rtpmap.c rtpmap.h options.c options.h codecapi.h \
 	speex_codec.c speex_codec.h dummy_codec.c dummy_codec.h  gsm_codec.c gsm_codec.h  g711u_codec.c g711u_codec.h \
@@ -18,6 +19,7 @@ common_sources = rtpmap.c rtpmap.h options.c options.h codecapi.h \
 	sipp_filter.c sipp_filter.h \
 	sort_filter.c sort_filter.h \
 	g711a_codec.c g711a_codec.h \
+	wincompat.c wincompat.h \
 	misc.c misc.h
 
 wav2rtp_SOURCES = wav2rtp.c $(common_sources)

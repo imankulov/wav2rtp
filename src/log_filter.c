@@ -33,6 +33,7 @@
  *
  */
 #include <sys/time.h>
+#include "misc.h"
 #include "log_filter.h"
 
 
@@ -54,7 +55,7 @@ wr_errorcode_t wr_log_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t ev
                 wr_rtp_filter_notify_observers(filter, event, packet);
                 return WR_OK;
             }
-            bzero(diff, sizeof(diff));
+            memset(diff, 0, sizeof(diff));
             /* count diff between current and previous timestamps */
             if (!timerisset(&state->prev_timestamp)){
                 strncpy(diff, "--.------", 255);

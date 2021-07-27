@@ -42,23 +42,28 @@
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
+#ifdef _WIN32
+#include <windows.h>
+#include <io.h>
+#endif
 
+wr_options_t wr_options;
 
-void print_usage()
+static void print_usage(const char * confdir)
 {
     int i = 0;
     printf( "\n"
             "This tool used to convert data from .wav to rtp packets which can be sent over network interface or stored into pcap file\n"
             "\n"
             "USAGE: wav2rtp [-f|--from-file] file.wav [-t|--to-file] file.pcap [-c|--codec] codec [ other options ... ]\n"
-            "  -v, --version            \tPriint to stdout version of this tool\n"
+            "  -v, --version            \tPrint to stdout version of this tool\n"
             "  -f, --from-file          \tFilename from which sound (speech) data will be readed\n"
             "  -t, --to-file            \tOutput file\n"
             "  -c, --codec-list         \tComma separated list of codecs (without spaces), which will be used to encode .wav file\n"
-            "  -o, --output-option      \tOutput option which redefine " CONFDIR "/output.conf. Recorded in form \"section:key=value\"\n"
-            "  -O, --codecs-option       \tCodec option which redefine " CONFDIR "/codecs.conf. Recorded in the form \"section:key=value\"\n"
+            "  -o, --output-option      \tOutput option which redefine %s/output.conf. Recorded in form \"section:key=value\"\n"
+            "  -O, --codecs-option       \tCodec option which redefine %s/codecs.conf. Recorded in the form \"section:key=value\"\n"
             "\n"
-            "Codecs options (such as payload type and other) may be defined in the config file: " CONFDIR "/codecs.conf\n"
+            "Codecs options (such as payload type and other) may be defined in the config file: %s/codecs.conf\n"
             "\n"
             "EXAMPLE: \n"
             "  wav2rtp -f test.wav -t test.pcap -c PCMU,GSM \n"
@@ -68,8 +73,8 @@ void print_usage()
             "  wav2rtp -f test.wav -t test.pcap -c PCMU,GSM -o log:enabled=true\n"
             "\n"
             "This case is the same as previous plus logging to stdout will be available\n"
-            "\n"
-
+            "\n",
+            confdir, confdir, confdir
     );
     printf("CODEC LIST:\n");
     while(encoder_map[i].name){
@@ -77,7 +82,6 @@ void print_usage()
     }
     printf("\n");
 }
-
 
 wr_errorcode_t get_options(const int argc, char * const argv[],
         const char * codecs_conf, const char * output_conf)
@@ -88,6 +92,9 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
     int hlp = 0, cset = 0, fset=0, version=0;
     char * chr; 
     char * codec_list = NULL;
+    const char * confdir = CONFDIR;
+    const char * default_codecs = CONFDIR "/codecs.conf";
+    const char * default_output = CONFDIR "/output.conf";
     int need_define_codec_list = 0;
     static struct option long_options[] = {
         {"help", 0, NULL, 'h', }, 
@@ -99,22 +106,47 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
         {"to-file", 1, NULL, 't', }, 
         {0, 0, 0, 0},
     };
+#ifdef _WIN32
+    char conf_directory[MAX_PATH];
+    char bin_directory[MAX_PATH];
+    char default_codecs_rel[MAX_PATH];
+    char default_output_rel[MAX_PATH];
+    char * last_slash;
+    GetModuleFileNameA(NULL, conf_directory, sizeof(conf_directory));
+    last_slash = strrchr(conf_directory, '\\');
+    *last_slash = 0;
+    strcpy(bin_directory, conf_directory);
+    last_slash = strrchr(conf_directory, '\\');
+    strcpy(last_slash + 1, "etc\\wav2rtp");
+    if (access(conf_directory, 0) == 0)
+        confdir = conf_directory;
+    else
+        confdir = bin_directory;
+    snprintf(default_codecs_rel, MAX_PATH, "%s\\%s", confdir, "codecs.conf");
+    snprintf(default_output_rel, MAX_PATH, "%s\\%s", confdir, "output.conf");
+    default_codecs = default_codecs_rel;
+    default_output = default_output_rel;
+#endif
 
-    bzero(&wr_options, sizeof(wr_options_t));
+    memset(&wr_options, 0, sizeof(wr_options_t));
 
     wr_options.codecs_options = iniparser_new(
-            codecs_conf ? (char *)codecs_conf : CONFDIR "/codecs.conf");
+            codecs_conf ? codecs_conf : default_codecs);
     if (!wr_options.codecs_options){
-        wr_set_error("Cannot load or parse file with codec options "
-                "(default location is " CONFDIR  "/codecs.conf)");
+        char message[1024];
+        snprintf(message, sizeof(message), "Cannot load or parse file with codec options "
+                "(default location is %s)", default_codecs);
+        wr_set_error(message);
         return WR_FATAL;
     }
 
     wr_options.output_options = iniparser_new(
-            output_conf ? (char *)output_conf : CONFDIR "/output.conf");
-    if (!wr_options.codecs_options){
-        wr_set_error("Cannot load or parse file with output options "
-                "(default location is " CONFDIR "/output.conf)");
+            output_conf ? output_conf : default_output);
+    if (!wr_options.output_options){
+        char message[1024];
+        snprintf(message, sizeof(message), "Cannot load or parse file with output options "
+                "(default location is %s)", default_output);
+        wr_set_error(message);
         return WR_FATAL;
     }
 
@@ -167,7 +199,7 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
         free(codec_list);
     }
     if (hlp || !(cset && fset)){
-        print_usage();
+        print_usage(confdir);
         wr_set_error("not enough of input arguments");
         return WR_FATAL;
     }
@@ -199,7 +231,7 @@ wr_errorcode_t get_codec_list(char * string, list_t ** pcodec_list)
             wr_set_error("size of list of codec is larger than 1023 symbols"); 
             return WR_FATAL;        
         }       
-        bzero(str, sizeof(str));
+        memset(str, 0, sizeof(str));
         strncpy(str, string, sizeof(str)-2);
 
         token = strtok_r(str, ",", &lasts);

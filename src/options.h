@@ -55,7 +55,7 @@ typedef struct __wr_options {
 } wr_options_t;
 
 /** global application options */
-wr_options_t wr_options;
+extern wr_options_t wr_options;
 
 /**
  * Load options from config command line and configuration files
@@ -76,5 +76,4 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
 wr_errorcode_t get_codec_list(char *, list_t **);
 wr_errorcode_t define_option(const char *, dictionary *);
 void free_codec_list(list_t *);
-void print_usage(void);
 #endif

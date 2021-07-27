@@ -13,7 +13,7 @@ extern "C" {
  *
  * This is a signed integer value.
  */
-typedef long list_hash_t;
+typedef size_t list_hash_t;
 
 /**
  * a comparator of elements.
