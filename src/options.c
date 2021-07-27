@@ -44,6 +44,7 @@
 #include <getopt.h>
 #ifdef _WIN32
 #include <windows.h>
+#include <io.h>
 #endif
 
 wr_options_t wr_options;
@@ -107,15 +108,20 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
     };
 #ifdef _WIN32
     char conf_directory[MAX_PATH];
+    char bin_directory[MAX_PATH];
     char default_codecs_rel[MAX_PATH];
     char default_output_rel[MAX_PATH];
     char * last_slash;
     GetModuleFileNameA(NULL, conf_directory, sizeof(conf_directory));
     last_slash = strrchr(conf_directory, '\\');
     *last_slash = 0;
+    strcpy(bin_directory, conf_directory);
     last_slash = strrchr(conf_directory, '\\');
     strcpy(last_slash + 1, "etc\\wav2rtp");
-    confdir = conf_directory;
+    if (access(conf_directory, 0) == 0)
+        confdir = conf_directory;
+    else
+        confdir = bin_directory;
     snprintf(default_codecs_rel, MAX_PATH, "%s\\%s", confdir, "codecs.conf");
     snprintf(default_output_rel, MAX_PATH, "%s\\%s", confdir, "output.conf");
     default_codecs = default_codecs_rel;
