@@ -75,7 +75,6 @@ typedef struct __wr_rtp_header
 	uint16_t seq_number;
 	uint32_t timestamp;
 	uint32_t ssrc;
-	uint32_t csrc[16];
 } wr_rtp_header_t;
 #pragma pack()
 

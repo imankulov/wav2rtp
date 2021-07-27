@@ -197,9 +197,9 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
 
                 ip_header.ip_len = sizeof(ip_header)  + 
                                    sizeof(udp_header) +                                   
-                                   sizeof(rtp_header) - sizeof(rtp_header.csrc);
+                                   sizeof(rtp_header);
                 ph.caplen = sizeof(e_header) + ip_header.ip_len;
-                udp_header.uh_ulen = sizeof(udp_header) + sizeof(rtp_header) - sizeof(rtp_header.csrc);
+                udp_header.uh_ulen = sizeof(udp_header) + sizeof(rtp_header);
                 list_iterator_start(&(packet->data_frames));
                 while(list_iterator_hasnext(&(packet->data_frames))){
                     wr_data_frame_t * current_data = list_iterator_next(&(packet->data_frames));
@@ -228,7 +228,7 @@ wr_errorcode_t wr_pcap_filter_notify(wr_rtp_filter_t * filter, wr_event_type_t e
                     retval += fwrite(&e_header, sizeof(e_header), 1, state->file);
                     retval += fwrite(&ip_header, sizeof(ip_header), 1, state->file);
                     retval += fwrite(&udp_header, sizeof(udp_header), 1, state->file);
-                    retval += fwrite(&rtp_header, sizeof(rtp_header) - sizeof(rtp_header.csrc), 1, state->file);
+                    retval += fwrite(&rtp_header, sizeof(rtp_header), 1, state->file);
                     if (retval != 5){
                         wr_set_error("cannot write packet header");
                         return WR_FATAL;
