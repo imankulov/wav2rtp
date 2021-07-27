@@ -53,12 +53,13 @@ static void print_usage(const char * confdir)
 {
     int i = 0;
     printf( "\n"
-            "This tool used to convert data from .wav to rtp packets which can be sent over network interface or stored into pcap file\n"
+            "This tool used to convert data from .wav to rtp packets which can be sent over network interface or stored into pcap or rtpdump file\n"
             "\n"
             "USAGE: wav2rtp [-f|--from-file] file.wav [-t|--to-file] file.pcap [-c|--codec] codec [ other options ... ]\n"
             "  -v, --version            \tPrint to stdout version of this tool\n"
             "  -f, --from-file          \tFilename from which sound (speech) data will be readed\n"
             "  -t, --to-file            \tOutput file\n"
+            "  -m, --format             \tOutput Format (pcap or rtpdump)\n"
             "  -c, --codec-list         \tComma separated list of codecs (without spaces), which will be used to encode .wav file\n"
             "  -o, --output-option      \tOutput option which redefine %s/output.conf. Recorded in form \"section:key=value\"\n"
             "  -O, --codecs-option       \tCodec option which redefine %s/codecs.conf. Recorded in the form \"section:key=value\"\n"
@@ -66,13 +67,17 @@ static void print_usage(const char * confdir)
             "Codecs options (such as payload type and other) may be defined in the config file: %s/codecs.conf\n"
             "\n"
             "EXAMPLE: \n"
-            "  wav2rtp -f test.wav -t test.pcap -c PCMU,GSM \n"
+            "  wav2rtp -f test.wav -t test.pcap -c PCMU,GSM\n"
             "\n"
             "This reads file \"test.wav\" TWO TIMES, encodes it first with G.711 then with GSM 06.10 and stores data in pcap file \"test.pcap\"\n"
             "\n"
             "  wav2rtp -f test.wav -t test.pcap -c PCMU,GSM -o log:enabled=true\n"
             "\n"
             "This case is the same as previous plus logging to stdout will be available\n"
+            "\n"
+            "  wav2rtp -f test.wav -t test.dump -c PCMA -m rtpdump\n"
+            "\n"
+            "This reads file \"test.wav\", encodes it with G.711 and stores data in rtpdump file \"test.dump\"\n"
             "\n",
             confdir, confdir, confdir
     );
@@ -81,6 +86,15 @@ static void print_usage(const char * confdir)
         printf("%s\t%s\n", encoder_map[i].name, encoder_map[i].description); i++;
     }
     printf("\n");
+}
+
+static wr_output_format __output_format_arg(const char *format)
+{
+    if (!strcasecmp(format, "pcap"))
+        return WR_OUTPUT_PCAP;
+    if (!strcasecmp(format, "rtpdump"))
+        return WR_OUTPUT_RTPDUMP;
+    return WR_OUTPUT_UNKNOWN;
 }
 
 wr_errorcode_t get_options(const int argc, char * const argv[],
@@ -104,6 +118,7 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
         {"output-option", 1, NULL, 'o', },
         {"codecs-option", 1, NULL, 'O', },
         {"to-file", 1, NULL, 't', }, 
+        {"format", 1, NULL, 'm', },
         {0, 0, 0, 0},
     };
 #ifdef _WIN32
@@ -152,7 +167,7 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
 
     while(1){
         int option_index = 0;
-        c = getopt_long(argc, argv, "hvf:c:o:O:t:", long_options, &option_index);
+        c = getopt_long(argc, argv, "hvf:c:o:O:t:m:", long_options, &option_index);
         if (c == -1)
             break;
         switch(c){
@@ -174,6 +189,9 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
                 break;
             case 't':
                 wr_options.output_filename = optarg;
+                break;
+            case 'm':
+                wr_options.output_format = __output_format_arg(optarg);
                 break;
             case 'o':
                 if (define_option(optarg, wr_options.output_options) != WR_OK)
@@ -210,7 +228,11 @@ wr_errorcode_t get_options(const int argc, char * const argv[],
     if (strncmp(wr_options.output_filename, wr_options.filename, 1024) == 0){
         wr_set_error("output filename is the same that input filename");
         return WR_FATAL;
-    }       
+    }
+    if (wr_options.output_format == WR_OUTPUT_UNKNOWN){
+        wr_set_error("output format is unsupported. Supported formats are pcap and rtpdump");
+        return WR_FATAL;
+    }
     return WR_OK;
 }
 

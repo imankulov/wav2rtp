@@ -9,6 +9,7 @@ common_sources = rtpmap.c rtpmap.h options.c options.h codecapi.h \
 	rtpapi.c rtpapi.h \
 	wavfile_filter.c wavfile_filter.h \
 	pcap_filter.c pcap_filter.h \
+	rtpdump_filter.c rtpdump_filter.h \
 	wavfile_output_filter.c wavfile_output_filter.h \
 	dummy_filter.c dummy_filter.h \
 	independent_losses_filter.c independent_losses_filter.h \

@@ -43,12 +43,19 @@
 #include "contrib/simclist.h"
 #include "error_types.h"
 
+typedef enum __wr_output_format {
+    WR_OUTPUT_PCAP,
+    WR_OUTPUT_RTPDUMP,
+    WR_OUTPUT_UNKNOWN
+} wr_output_format;
+
 /** Options passed from command-line arguments */
 typedef struct __wr_options {
 
     char * filename;    
     list_t * codec_list;
     char * output_filename;
+    wr_output_format output_format;
     dictionary * codecs_options; /**< Dictionary of codec options given from /etc/wav2rtp/codecs.conf */
     dictionary * output_options; /**< Dictionary of output options given from /etc/wav2rtp/output.conf */
 
