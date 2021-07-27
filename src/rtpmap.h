@@ -1,7 +1,7 @@
 /*
  * $Id$
  * 
- * Copyright (c) 20010, R.Imankulov, Yu Jiang
+ * Copyright (c) 2010, R.Imankulov, Yu Jiang
  *
  * All rights reserved.
  *
