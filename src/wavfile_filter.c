@@ -99,7 +99,7 @@ wr_errorcode_t wr_wavfile_filter_start(wr_rtp_filter_t * filter)
     }
 
     wr_rtp_packet_init(&rtp_packet, codec->payload_type, sequence_number, 1, rtp_timestamp, packet_start_timestamp);
-    wr_rtp_filter_notify_observers(filter, TRANSMISSION_START, NULL);
+    wr_rtp_filter_notify_observers(filter, TRANSMISSION_START, &rtp_packet);
 
     /* One cycle iteration encode one data frame */
     while(codec){

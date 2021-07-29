@@ -42,6 +42,7 @@
 
 #include "rtpdump_filter.h"
 #include "options.h"
+#include "misc.h"
 
 typedef struct st_rtpdump_info
 {
@@ -60,7 +61,7 @@ typedef struct __wr_rtpdump_filter_state {
 
 static wr_errorcode_t __write_rtpdump_header(wr_rtpdump_filter_state_t *state)
 {
-    struct timeval start_timestamp;
+    struct timeval timestamp;
     struct in_addr ip_src;
     uint16_t port, padding = 0;
 
@@ -71,11 +72,10 @@ static wr_errorcode_t __write_rtpdump_header(wr_rtpdump_filter_state_t *state)
         return WR_FATAL;
     ip_src.s_addr = inet_addr(iniparser_getstring(wr_options.output_options, "global:src_ip", "127.0.0.1"));
     port = htons((short)iniparser_getnonnegativeint(wr_options.output_options, "global:src_port", 8001));
-    gettimeofday(&start_timestamp, NULL);
-    start_timestamp.tv_sec = htonl(start_timestamp.tv_sec);
-    start_timestamp.tv_usec = htonl(start_timestamp.tv_usec);
+    timestamp.tv_sec = htonl(state->start_timestamp.tv_sec);
+    timestamp.tv_usec = htonl(state->start_timestamp.tv_usec);
 
-    if (fwrite(&start_timestamp, sizeof(timestamp), 1, state->file) == 0)
+    if (fwrite(&timestamp, sizeof(timestamp), 1, state->file) == 0)
         return WR_FATAL;
     if (fwrite(&ip_src.s_addr, 4, 1, state->file) == 0)
         return WR_FATAL;
@@ -101,6 +101,7 @@ wr_errorcode_t wr_rtpdump_filter_notify(wr_rtp_filter_t *filter, wr_event_type_t
             wr_set_error("Cannot open output file");
             return WR_FATAL;
         }
+        timeval_copy(&state->start_timestamp, &packet->lowlevel_timestamp);
         if (__write_rtpdump_header(state) != WR_OK)
         {
             fclose(state->file);
@@ -117,6 +118,7 @@ wr_errorcode_t wr_rtpdump_filter_notify(wr_rtp_filter_t *filter, wr_event_type_t
         wr_errorcode_t retval;
         rtpdump_info_t rtpdump_packet;
         wr_rtp_header_t rtp_header;
+        struct timeval timediff;
         wr_rtpdump_filter_state_t *state = (wr_rtpdump_filter_state_t *)filter->state;
         rtpdump_packet.plen = sizeof(rtp_header);
         list_iterator_start(&(packet->data_frames));
@@ -129,7 +131,8 @@ wr_errorcode_t wr_rtpdump_filter_notify(wr_rtp_filter_t *filter, wr_event_type_t
         wr_rtp_header_init(&rtp_header, packet);
         rtpdump_packet.length = htons(rtpdump_packet.plen + sizeof(rtpdump_packet));
         rtpdump_packet.plen = htons(rtpdump_packet.plen);
-        rtpdump_packet.rec_time = htonl(packet->rtp_timestamp / 8);
+        timersub(&packet->lowlevel_timestamp, &state->start_timestamp, &timediff);
+        rtpdump_packet.rec_time = htonl(timediff.tv_sec * 1000 + timediff.tv_usec / 1000);
         {
             int retval;
             if (!filter->state)
