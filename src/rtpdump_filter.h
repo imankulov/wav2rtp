@@ -43,13 +43,6 @@
  */
 
 
-/** 
- * Structure to store internal state of the rtpdump output filter
- */
-typedef struct __wr_rtpdump_filter_state {
-    FILE * file;
-} wr_rtpdump_filter_state_t;
-
 /**
  * Store data into file 
  * This method is invoked when filter is notified

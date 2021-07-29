@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2021, Orgad Shaneh
  *
  * All rights reserved.
@@ -50,13 +50,21 @@ typedef struct st_rtpdump_info
     uint32_t rec_time; /**< milliseconds since start of recording */
 } rtpdump_info_t;
 
-static wr_errorcode_t __write_rtpdump_header(FILE *file)
+/**
+ * Structure to store internal state of the rtpdump output filter
+ */
+typedef struct __wr_rtpdump_filter_state {
+    FILE * file;
+    struct timeval start_timestamp;
+} wr_rtpdump_filter_state_t;
+
+static wr_errorcode_t __write_rtpdump_header(wr_rtpdump_filter_state_t *state)
 {
     struct timeval start_timestamp;
     struct in_addr ip_src;
     uint16_t port, padding = 0;
 
-    size_t len = fprintf(file, "#!rtpplay1.0 %s/%u\n",
+    size_t len = fprintf(state->file, "#!rtpplay1.0 %s/%u\n",
                          iniparser_getstring(wr_options.output_options, "global:dst_ip", "127.0.0.2"),
                          iniparser_getnonnegativeint(wr_options.output_options, "global:dst_port", 8002));
     if (len < 1)
@@ -67,13 +75,13 @@ static wr_errorcode_t __write_rtpdump_header(FILE *file)
     start_timestamp.tv_sec = htonl(start_timestamp.tv_sec);
     start_timestamp.tv_usec = htonl(start_timestamp.tv_usec);
 
-    if (fwrite(&start_timestamp, sizeof(start_timestamp), 1, file) == 0)
+    if (fwrite(&start_timestamp, sizeof(timestamp), 1, state->file) == 0)
         return WR_FATAL;
-    if (fwrite(&ip_src.s_addr, 4, 1, file) == 0)
+    if (fwrite(&ip_src.s_addr, 4, 1, state->file) == 0)
         return WR_FATAL;
-    if (fwrite(&port, 2, 1, file) == 0)
+    if (fwrite(&port, 2, 1, state->file) == 0)
         return WR_FATAL;
-    if (fwrite(&padding, 2, 1, file) == 0)
+    if (fwrite(&padding, 2, 1, state->file) == 0)
         return WR_FATAL;
     return WR_OK;
 }
@@ -93,7 +101,7 @@ wr_errorcode_t wr_rtpdump_filter_notify(wr_rtp_filter_t *filter, wr_event_type_t
             wr_set_error("Cannot open output file");
             return WR_FATAL;
         }
-        if (__write_rtpdump_header(state->file) != WR_OK)
+        if (__write_rtpdump_header(state) != WR_OK)
         {
             fclose(state->file);
             free(state);
